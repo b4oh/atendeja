@@ -13,11 +13,16 @@ import com.atendeja.repository.SenhaRepository;
 import com.atendeja.repository.UsuarioRepository;
 import com.atendeja.service.GuicheService;
 import com.atendeja.service.SenhaService;
+import com.atendeja.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -44,6 +49,9 @@ public class AtendenteController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private SseService sseService;
 
     // Selecionar guichê
     @GetMapping("/home")
@@ -111,6 +119,21 @@ public class AtendenteController {
         model.addAttribute("desfechos", DesfechoAtendimento.values());
 
         return "atendente/painel";
+    }
+
+    // Stream SSE para atualizar a fila do atendente sem recarregar a tela.
+    @GetMapping(value = "/painel/{guicheId}/fila-stream",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ResponseBody
+    public SseEmitter filaStream(@PathVariable Long guicheId) {
+        Guiche guiche = guicheRepository.findById(guicheId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Guichê não encontrado."));
+
+        Long unidadeId = guiche.getUnidade().getId();
+        SseEmitter emitter = sseService.registrar(unidadeId);
+        senhaService.enviarFilaAtualizada(unidadeId);
+        return emitter;
     }
 
     // Chamar próxima senha

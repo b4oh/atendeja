@@ -139,15 +139,18 @@
 
         <div>
             <div class="section-title">Fila — Próximas</div>
-            <div class="fila-list">
+            <div class="fila-list" id="filaLista">
                 <div class="fila-item" th:each="s : ${fila}" th:if="${#lists.size(fila) > 0}">
                     <span class="fi-num" th:text="${s.numero}"></span>
                     <span class="fi-tipo" th:text="${s.servico.nome}"></span>
                     <span class="fi-prio" th:if="${s.prioritaria}">Prio.</span>
                 </div>
-                <div th:if="${#lists.isEmpty(fila)}" style="color:#9CA3AF;font-size:13px;text-align:center;padding:12px;">
+                <div class="fila-vazia" th:if="${#lists.isEmpty(fila)}" style="color:#9CA3AF;font-size:13px;text-align:center;padding:12px;">
                     Fila vazia
                 </div>
+            </div>
+            <div id="filaStatus" style="color:#9CA3AF;font-size:11px;text-align:center;margin-top:8px;">
+                Tempo real conectando...
             </div>
         </div>
 
@@ -226,15 +229,81 @@
     </div>
 </div>
 
-<script>
-    // Marca o primeiro desfecho como selecionado
-    document.getElementById('btn-ATENDIDO').classList.add('selected');
+<script th:inline="javascript">
+    const guicheId = /*[[${guiche.id}]]*/ 0;
+    const btnAtendido = document.getElementById('btn-ATENDIDO');
+
+    if (btnAtendido) {
+        btnAtendido.classList.add('selected');
+    }
 
     function selecionarDesfecho(valor) {
         document.querySelectorAll('.desfecho-btn').forEach(b => b.classList.remove('selected'));
         document.getElementById('btn-' + valor).classList.add('selected');
         document.querySelector('input[value="' + valor + '"]').checked = true;
     }
+
+    function conectarFilaSse() {
+        const filaStatus = document.getElementById('filaStatus');
+        const source = new EventSource('/atendente/painel/' + guicheId + '/fila-stream');
+
+        source.addEventListener('filaAtualizada', function(event) {
+            const fila = JSON.parse(event.data);
+            atualizarFila(fila);
+            filaStatus.textContent = 'Tempo real conectado';
+        });
+
+        source.onopen = function() {
+            filaStatus.textContent = 'Tempo real conectado';
+        };
+
+        source.onerror = function() {
+            filaStatus.textContent = 'Reconectando fila...';
+            source.close();
+            setTimeout(conectarFilaSse, 3000);
+        };
+    }
+
+    function atualizarFila(fila) {
+        const lista = document.getElementById('filaLista');
+        lista.innerHTML = '';
+
+        if (!fila || fila.length === 0) {
+            const vazio = document.createElement('div');
+            vazio.className = 'fila-vazia';
+            vazio.style.cssText = 'color:#9CA3AF;font-size:13px;text-align:center;padding:12px;';
+            vazio.textContent = 'Fila vazia';
+            lista.appendChild(vazio);
+            return;
+        }
+
+        fila.forEach(function(senha) {
+            const item = document.createElement('div');
+            item.className = 'fila-item';
+
+            const numero = document.createElement('span');
+            numero.className = 'fi-num';
+            numero.textContent = senha.numero;
+
+            const servico = document.createElement('span');
+            servico.className = 'fi-tipo';
+            servico.textContent = senha.servico;
+
+            item.appendChild(numero);
+            item.appendChild(servico);
+
+            if (senha.prioritaria) {
+                const prio = document.createElement('span');
+                prio.className = 'fi-prio';
+                prio.textContent = 'Prio.';
+                item.appendChild(prio);
+            }
+
+            lista.appendChild(item);
+        });
+    }
+
+    conectarFilaSse();
 </script>
 </body>
 </html>

@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SenhaService {
@@ -26,6 +29,9 @@ public class SenhaService {
 
     @Autowired
     private UnidadeSaudeRepository unidadeSaudeRepository;
+
+    @Autowired
+    private SseService sseService;
 
     public Senha emitirSenha(Long unidadeId, Long servicoId,
                              Boolean prioritaria, String celular,
@@ -63,7 +69,9 @@ public class SenhaService {
         senha.setCelular(celular);
         senha.setStatus(StatusSenha.AGUARDANDO);
 
-        return senhaRepository.save(senha);
+        Senha senhaSalva = senhaRepository.save(senha);
+        enviarFilaAtualizada(unidadeId);
+        return senhaSalva;
     }
 
     private String gerarNumero(Character prefixo, Long unidadeId) {
@@ -87,6 +95,27 @@ public class SenhaService {
         return senhaRepository
                 .findByUnidadeIdAndStatusOrderByPrioritariaDescEmitidaEmAsc(
                         unidadeId, StatusSenha.AGUARDANDO);
+    }
+
+    public void enviarFilaAtualizada(Long unidadeId) {
+        sseService.enviarFilaAtualizada(unidadeId, montarFilaAtualizada(unidadeId));
+    }
+
+    public List<Map<String, Object>> montarFilaAtualizada(Long unidadeId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return listarFilaAtual(unidadeId).stream()
+                .map(senha -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("id", senha.getId());
+                    item.put("numero", senha.getNumero());
+                    item.put("servico", senha.getServico().getNome());
+                    item.put("prioritaria", senha.getPrioritaria());
+                    item.put("emitidaEm", senha.getEmitidaEm() != null
+                            ? senha.getEmitidaEm().format(formatter)
+                            : "");
+                    return item;
+                })
+                .toList();
     }
 
     public Integer getPosicaoNaFila(Senha senha) {

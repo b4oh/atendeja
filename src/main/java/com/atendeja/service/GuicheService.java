@@ -30,6 +30,9 @@ public class GuicheService {
     @Autowired
     private NotificacaoService notificacaoService;
 
+    @Autowired
+    private SenhaService senhaService;
+
     public Optional<Guiche> buscarPorId(Long id) {
         return guicheRepository.findById(id);
     }
@@ -77,6 +80,8 @@ public class GuicheService {
         List<Senha> filaRestante = senhaRepository
                 .findByUnidadeIdAndStatusOrderByPrioritariaDescEmitidaEmAsc(
                         unidadeId, StatusSenha.AGUARDANDO);
+
+        senhaService.enviarFilaAtualizada(unidadeId);
 
         for (int i = 0; i < filaRestante.size(); i++) {
             int posicao = i + 1;
