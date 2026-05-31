@@ -39,14 +39,16 @@
         .card.disabled {
             opacity: 0.5; pointer-events: none; cursor: not-allowed;
         }
-        .card .icon { font-size: 36px; margin-bottom: 12px; }
+        .card .icon {
+            width: 44px; height: 44px; margin: 0 auto 14px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; background: #E8F7F2; color: #00875A;
+            font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+        }
         .card .title { font-size: 16px; font-weight: 700; }
         .card .desc { font-size: 13px; color: #7A8694; margin-top: 4px; }
-        .card .badge-soon {
-            display: inline-block; margin-top: 8px; padding: 2px 8px;
-            background: #FEF3C7; color: #92400E; border-radius: 4px;
-            font-size: 11px; font-weight: 600;
-        }
+        .card.operacional .icon { background: #EAF2F8; color: #1A3C5E; }
+        .card.gestao .icon { background: #EEF2FF; color: #3730A3; }
     </style>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
@@ -66,68 +68,65 @@
     <p class="subtitle">Selecione o que deseja fazer</p>
 
     <!-- Público -->
-    <p class="section-title">🌐 Acesso público</p>
+    <p class="section-title">Acesso público</p>
     <div class="cards">
         <a class="card" th:href="@{/senha/consultar}">
-            <div class="icon">🔍</div>
+            <div class="icon">FIL</div>
             <div class="title">Consultar Fila</div>
             <div class="desc">Posição na fila sem login</div>
-            <span class="badge-soon">Em breve</span>
         </a>
         <a class="card" th:href="@{/totem}">
-            <div class="icon">🎫</div>
+            <div class="icon">SEN</div>
             <div class="title">Totem Digital</div>
             <div class="desc">Emissão de senhas</div>
-            <span class="badge-soon">Em breve</span>
         </a>
         <a class="card" th:href="@{/transparencia}">
-            <div class="icon">📋</div>
+            <div class="icon">PUB</div>
             <div class="title">Transparência</div>
             <div class="desc">Agendamentos públicos</div>
         </a>
         <a class="card" th:href="@{/agendamento}">
-            <div class="icon">🧪</div>
+            <div class="icon">EXA</div>
             <div class="title">Agendar Exame</div>
             <div class="desc">Marcar exame online</div>
         </a>
     </div>
 
     <!-- Atendente -->
-    <p class="section-title" sec:authorize="hasAnyRole('ADMIN','GESTOR','ATENDENTE')">🖥️ Atendimento</p>
+    <p class="section-title" sec:authorize="hasAnyRole('ADMIN','GESTOR','ATENDENTE')">Atendimento</p>
     <div class="cards" sec:authorize="hasAnyRole('ADMIN','GESTOR','ATENDENTE')">
-        <a class="card" th:href="@{/atendente/home}">
-            <div class="icon">🖥️</div>
+        <a class="card operacional" th:href="@{/atendente/home}">
+            <div class="icon">ATE</div>
             <div class="title">Atendente</div>
             <div class="desc">Chamar senhas e registrar</div>
-            <span class="badge-soon">Em breve</span>
         </a>
-        <a class="card" th:href="@{/painel}">
-            <div class="icon">📺</div>
+        <a class="card operacional" th:href="@{/painel}">
+            <div class="icon">TV</div>
             <div class="title">Painel de Chamada</div>
             <div class="desc">Abrir painel para TV</div>
         </a>
     </div>
 
     <!-- Gestor -->
-    <p class="section-title" sec:authorize="hasAnyRole('ADMIN','GESTOR')">📊 Gestão</p>
+    <p class="section-title" sec:authorize="hasAnyRole('ADMIN','GESTOR')">Gestão</p>
     <div class="cards" sec:authorize="hasAnyRole('ADMIN','GESTOR')">
-        <a class="card" th:href="@{/gestor/home}">
-            <div class="icon">📊</div>
+        <a class="card gestao" th:href="@{/gestor/home}">
+            <div class="icon">REL</div>
             <div class="title">Relatórios</div>
             <div class="desc">Dashboard gerencial</div>
         </a>
     </div>
 
     <!-- Admin -->
-    <p class="section-title" sec:authorize="hasRole('ADMIN')">⚙️ Administração</p>
+    <p class="section-title" sec:authorize="hasRole('ADMIN')">Administração</p>
     <div class="cards" sec:authorize="hasRole('ADMIN')">
-        <a class="card" th:href="@{/admin/usuarios}">
-            <div class="icon">👥</div>
+        <a class="card gestao" th:href="@{/admin/usuarios}">
+            <div class="icon">USR</div>
             <div class="title">Usuários</div>
             <div class="desc">Gerenciar acessos</div>
         </a>
-        <a class="card" th:href="@{/admin/unidades}">
-            <div class="icon">🏥</div>
+        <a class="card gestao" th:href="@{/admin/unidades}">
+            <div class="icon">UND</div>
             <div class="title">Unidades</div>
             <div class="desc">Gerenciar unidades</div>
         </a>

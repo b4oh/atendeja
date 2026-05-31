@@ -28,7 +28,13 @@
             color: #fff; text-decoration: none; transition: all 0.25s;
         }
         .exame-btn:hover { background: rgba(0,179,126,0.15); border-color: #00B37E; transform: translateY(-2px); }
-        .exame-btn .icon { font-size: 28px; margin-bottom: 8px; display: block; }
+        .exame-btn .icon {
+            width: 48px; height: 48px; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; background: rgba(0,179,126,0.14);
+            border: 1px solid rgba(0,179,126,0.32);
+            color: #00B37E; font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+        }
         .exame-btn .nome { font-size: 15px; font-weight: 700; display: block; }
         .exame-btn .desc { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
         .exame-btn .info { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 6px; display: block; }
@@ -53,7 +59,7 @@
 <div class="exames">
     <a class="exame-btn" th:each="e : ${exames}"
        th:href="@{/agendamento/novo/{uid}/{eid}(uid=${unidade.id},eid=${e.id})}">
-        <span class="icon">🧪</span>
+        <span class="icon">EXA</span>
         <span class="nome" th:text="${e.nome}"></span>
         <span class="desc" th:text="${e.descricao}"></span>
         <span class="info" th:text="'⏱ ' + ${e.duracaoMinutos} + ' min · ' + ${e.vagasPorDia} + ' vagas/dia'"></span>

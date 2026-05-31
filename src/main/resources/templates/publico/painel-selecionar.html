@@ -23,7 +23,13 @@
             color: #fff; text-decoration: none; transition: all 0.25s;
         }
         .unidade-btn:hover { background: rgba(0,179,126,0.15); border-color: #00B37E; transform: translateY(-2px); }
-        .unidade-btn .icon { font-size: 32px; margin-bottom: 10px; display: block; }
+        .unidade-btn .icon {
+            width: 52px; height: 52px; margin: 0 auto 14px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 14px; background: rgba(0,179,126,0.14);
+            border: 1px solid rgba(0,179,126,0.32);
+            color: #00B37E; font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+        }
         .unidade-btn .nome { font-size: 15px; font-weight: 700; display: block; }
         .unidade-btn .tipo { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
         .hint { color: rgba(255,255,255,0.3); font-size: 13px; margin-top: 24px; text-align: center; }
@@ -41,13 +47,12 @@
 <div class="unidades">
     <a class="unidade-btn" th:each="u : ${unidades}"
        th:href="@{/painel/{id}(id=${u.id})}">
-            <span class="icon"
-                  th:text="${u.tipo.name() == 'UBS' ? '🏥' : u.tipo.name() == 'UPA' ? '🚑' : u.tipo.name() == 'HOSPITAL' ? '🏨' : '🏥'}"></span>
+            <span class="icon" th:text="${u.tipo}"></span>
         <span class="nome" th:text="${u.nome}"></span>
         <span class="tipo" th:text="${u.tipo}"></span>
     </a>
 </div>
 
-<p class="hint">💡 Abra esta página na TV em tela cheia (F11)</p>
+<p class="hint">Abra esta página na TV em tela cheia (F11)</p>
 </body>
 </html>

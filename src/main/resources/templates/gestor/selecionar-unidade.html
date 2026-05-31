@@ -28,7 +28,12 @@
             transition: all 0.2s;
         }
         .unidade-btn:hover { border-color: #00B37E; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .unidade-btn .icon { font-size: 32px; margin-bottom: 8px; display: block; }
+        .unidade-btn .icon {
+            width: 48px; height: 48px; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; background: #E8F7F2; color: #00875A;
+            font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+        }
         .unidade-btn .nome { font-size: 16px; font-weight: 700; display: block; }
         .unidade-btn .tipo { font-size: 12px; color: #7A8694; margin-top: 4px; display: block; }
     </style>
@@ -47,15 +52,14 @@
 
 <div class="content">
     <div class="page-title">
-        <h2>📊 Relatórios Gerenciais</h2>
+        <h2>Relatórios Gerenciais</h2>
         <p>Selecione a unidade para visualizar o dashboard</p>
     </div>
 
     <div class="unidades">
         <a class="unidade-btn" th:each="u : ${unidades}"
            th:href="@{/gestor/dashboard/{id}(id=${u.id})}">
-                <span class="icon"
-                      th:text="${u.tipo.name() == 'UBS' ? '🏥' : u.tipo.name() == 'UPA' ? '🚑' : u.tipo.name() == 'HOSPITAL' ? '🏨' : '🏥'}"></span>
+                <span class="icon" th:text="${u.tipo}"></span>
             <span class="nome" th:text="${u.nome}"></span>
             <span class="tipo" th:text="${u.tipo}"></span>
         </a>

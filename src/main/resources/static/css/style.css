@@ -38,6 +38,7 @@
 body {
     font-family: "Segoe UI", Arial, sans-serif;
     color: var(--cinza-800);
+    background: var(--fundo);
 }
 
 a {
@@ -110,6 +111,7 @@ textarea {
     width: 100%;
     max-width: 1120px;
     margin: 0 auto;
+    padding: 32px;
 }
 
 .page-title {
@@ -148,7 +150,11 @@ textarea {
 .comprovante,
 .resultado,
 .contador,
-.filtros {
+.filtros,
+.metric-card,
+.chart-card,
+.table-card,
+.guiche-card {
     background: var(--branco);
     border: 1px solid var(--cinza-200);
     border-radius: var(--radius-lg);
@@ -170,6 +176,19 @@ textarea {
 .exame-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--sombra-md);
+}
+
+.card {
+    position: relative;
+    min-height: 132px;
+}
+
+.card .title {
+    color: var(--azul-700);
+}
+
+.card .desc {
+    line-height: 1.35;
 }
 
 .btn,
@@ -281,6 +300,7 @@ textarea {
 .nao-encontrada {
     border-radius: var(--radius);
     font-size: 14px;
+    padding: 12px 16px;
 }
 
 .alert-success {
@@ -322,6 +342,7 @@ thead th {
 tbody td {
     color: var(--cinza-800);
     border-bottom: 1px solid var(--cinza-100);
+    vertical-align: middle;
 }
 
 tbody tr:hover {
@@ -330,7 +351,6 @@ tbody tr:hover {
 
 .badge,
 .status-badge,
-.badge-soon,
 .badge-pub,
 .badge-prio {
     display: inline-flex;
@@ -340,6 +360,7 @@ tbody tr:hover {
     border-radius: 999px;
     font-weight: 800;
     line-height: 1;
+    padding: 5px 10px;
 }
 
 .badge-ativo,
@@ -448,6 +469,7 @@ textarea:focus {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .empty-msg,
@@ -461,6 +483,43 @@ textarea:focus {
     color: var(--verde-700);
     background: rgba(0, 179, 126, 0.10);
     border-radius: 999px;
+}
+
+.metric-card .val,
+.contador .num,
+.senha-card .num,
+.guiche-card .numero {
+    letter-spacing: 0;
+}
+
+.metric-card,
+.chart-card,
+.table-card {
+    box-shadow: var(--sombra-sm);
+}
+
+.unidade-btn,
+.servico-card,
+.exame-btn {
+    border-radius: var(--radius-lg);
+}
+
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-login:focus-visible,
+.btn-abrir:focus-visible,
+.btn-emitir:focus-visible,
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid rgba(0, 179, 126, 0.28);
+    outline-offset: 2px;
+}
+
+@media (min-width: 761px) {
+    .content {
+        padding-top: 36px;
+        padding-bottom: 40px;
+    }
 }
 
 @media (max-width: 760px) {
@@ -485,6 +544,7 @@ textarea:focus {
     .content {
         padding-left: 18px;
         padding-right: 18px;
+        padding-top: 22px;
     }
 
     .cards,

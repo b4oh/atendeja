@@ -38,7 +38,13 @@
         .servico-card.selected {
             background: rgba(0,179,126,0.2); border-color: #00B37E;
         }
-        .servico-card .icon { font-size: 28px; margin-bottom: 8px; display: block; }
+        .servico-card .icon {
+            width: 48px; height: 48px; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; background: rgba(0,179,126,0.14);
+            border: 1px solid rgba(0,179,126,0.32);
+            color: #00B37E; font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+        }
         .servico-card .nome { font-size: 15px; font-weight: 700; display: block; }
         .servico-card .prefixo { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
         .form-section {
@@ -98,7 +104,7 @@
     <div class="servicos">
         <div class="servico-card" th:each="s : ${servicos}"
              th:data-id="${s.id}" onclick="selecionarServico(this)">
-            <span class="icon">🩺</span>
+            <span class="icon" th:text="${s.prefixo}"></span>
             <span class="nome" th:text="${s.nome}"></span>
             <span class="prefixo" th:text="'Senha: ' + ${s.prefixo} + '___'"></span>
         </div>
@@ -114,7 +120,7 @@
         <label for="celular">Celular para notificação (opcional)</label>
         <input type="text" id="celular" name="celular" placeholder="(82) 99999-0000"/>
 
-        <button type="submit" class="btn-emitir">🎫 Emitir Senha</button>
+        <button type="submit" class="btn-emitir">Emitir Senha</button>
     </div>
 </form>
 
