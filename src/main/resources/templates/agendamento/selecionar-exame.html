@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>AtendeJá — Selecionar Exame</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -33,7 +34,7 @@
             display: flex; align-items: center; justify-content: center;
             border-radius: 12px; background: rgba(0,179,126,0.14);
             border: 1px solid rgba(0,179,126,0.32);
-            color: #00B37E; font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+            color: #00B37E; font-size: 24px; font-weight: 800; letter-spacing: 0;
         }
         .exame-btn .nome { font-size: 15px; font-weight: 700; display: block; }
         .exame-btn .desc { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
@@ -59,7 +60,7 @@
 <div class="exames">
     <a class="exame-btn" th:each="e : ${exames}"
        th:href="@{/agendamento/novo/{uid}/{eid}(uid=${unidade.id},eid=${e.id})}">
-        <span class="icon">EXA</span>
+        <span class="icon"><i class="bi bi-clipboard2-pulse"></i></span>
         <span class="nome" th:text="${e.nome}"></span>
         <span class="desc" th:text="${e.descricao}"></span>
         <span class="info" th:text="'⏱ ' + ${e.duracaoMinutos} + ' min · ' + ${e.vagasPorDia} + ' vagas/dia'"></span>

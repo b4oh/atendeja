@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>AtendeJá — Painel</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -28,7 +29,7 @@
             display: flex; align-items: center; justify-content: center;
             border-radius: 14px; background: rgba(0,179,126,0.14);
             border: 1px solid rgba(0,179,126,0.32);
-            color: #00B37E; font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+            color: #00B37E; font-size: 24px; font-weight: 800; letter-spacing: 0;
         }
         .unidade-btn .nome { font-size: 15px; font-weight: 700; display: block; }
         .unidade-btn .tipo { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
@@ -47,7 +48,10 @@
 <div class="unidades">
     <a class="unidade-btn" th:each="u : ${unidades}"
        th:href="@{/painel/{id}(id=${u.id})}">
-            <span class="icon" th:text="${u.tipo}"></span>
+            <span class="icon">
+                <i class="bi"
+                   th:classappend="${u.tipo.name() == 'UPA' ? ' bi-heart-pulse' : u.tipo.name() == 'HOSPITAL' ? ' bi-hospital' : ' bi-building'}"></i>
+            </span>
         <span class="nome" th:text="${u.nome}"></span>
         <span class="tipo" th:text="${u.tipo}"></span>
     </a>
