@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Totem</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0F2D45, #0A1A28);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo h1 { font-size: 42px; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #00B37E; }
+        .logo p { color: rgba(255,255,255,0.5); font-size: 16px; margin-top: 8px; }
+        .subtitle { color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 24px; }
+        .unidades { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 560px; }
+        .unidade-btn {
+            background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 28px 20px; cursor: pointer; transition: all 0.25s;
+            text-align: center; color: #fff; text-decoration: none; display: block;
+        }
+        .unidade-btn:hover {
+            background: rgba(0,179,126,0.15); border-color: #00B37E; transform: translateY(-2px);
+        }
+        .unidade-btn .icon { font-size: 32px; margin-bottom: 10px; display: block; }
+        .unidade-btn .nome { font-size: 15px; font-weight: 700; display: block; }
+        .unidade-btn .tipo { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
+        .unidade-btn .horario { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; display: block; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="logo">
+    <h1>Atende<span>Já</span></h1>
+    <p>Sistema de Filas do SUS — Alagoas</p>
+</div>
+
+<p class="subtitle">Selecione a unidade de saúde</p>
+
+<div class="unidades">
+    <a class="unidade-btn" th:each="u : ${unidades}"
+       th:href="@{/totem/{id}(id=${u.id})}">
+            <span class="icon"
+                  th:text="${u.tipo.name() == 'UBS' ? '🏥' : u.tipo.name() == 'UPA' ? '🚑' : u.tipo.name() == 'HOSPITAL' ? '🏨' : '🏥'}"></span>
+        <span class="nome" th:text="${u.nome}"></span>
+        <span class="tipo" th:text="${u.tipo}"></span>
+        <span class="horario" th:text="${u.horario != null ? u.horario : ''}"></span>
+    </a>
+</div>
+</body>
+</html>

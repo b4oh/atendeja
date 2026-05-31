@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Unidades</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 22px; }
+        .header h1 span { color: #00B37E; }
+        .header-links a { color: #fff; text-decoration: none; font-size: 14px; margin-left: 16px;
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; }
+        .header-links a:hover { background: rgba(255,255,255,0.25); }
+        .header-links form { display: inline; }
+        .header-links button { background: rgba(255,255,255,0.15); color: #fff; border: none;
+            padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .header-links button:hover { background: rgba(255,255,255,0.25); }
+        .content { padding: 32px; max-width: 1100px; margin: 0 auto; }
+        .page-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-title h2 { font-size: 24px; color: #1A3C5E; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            text-decoration: none; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #00B37E; color: #fff; }
+        .btn-primary:hover { background: #00875A; }
+        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; }
+        .btn-edit:hover { background: #1A5276; }
+        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-ativar { background: #D1FAE5; color: #065F46; }
+        .btn-desativar { background: #FEE2E2; color: #991B1B; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .alert-success { background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; }
+        .alert-error { background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        thead th { background: #F4F6F9; padding: 12px 16px; text-align: left; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #7A8694; font-weight: 600; }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid #F3F4F6; font-size: 14px; color: #1F2937; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #FAFBFC; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-ubs { background: #DBEAFE; color: #1E40AF; }
+        .badge-upa { background: #FEF3C7; color: #92400E; }
+        .badge-hospital { background: #E0E7FF; color: #3730A3; }
+        .badge-clinica { background: #F3F4F6; color: #374151; }
+        .badge-ativa { background: #D1FAE5; color: #065F46; }
+        .badge-inativa { background: #FEE2E2; color: #991B1B; }
+        .acoes { display: flex; gap: 8px; align-items: center; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span></h1>
+    <div class="header-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="page-title">
+        <h2>🏥 Gerenciar Unidades de Saúde</h2>
+        <a class="btn btn-primary" th:href="@{/admin/unidades/nova}">+ Nova Unidade</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>CNES</th>
+            <th>Tipo</th>
+            <th>Endereço</th>
+            <th>Horário</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${unidades}">
+            <td th:text="${u.nome}"></td>
+            <td th:text="${u.cnes}"></td>
+            <td>
+                <span class="badge badge-ubs" th:if="${u.tipo.name() == 'UBS'}">UBS</span>
+                <span class="badge badge-upa" th:if="${u.tipo.name() == 'UPA'}">UPA</span>
+                <span class="badge badge-hospital" th:if="${u.tipo.name() == 'HOSPITAL'}">Hospital</span>
+                <span class="badge badge-clinica" th:if="${u.tipo.name() == 'CLINICA'}">Clínica</span>
+            </td>
+            <td th:text="${u.endereco}"></td>
+            <td th:text="${u.horario != null ? u.horario : '—'}"></td>
+            <td>
+                <span class="badge badge-ativa" th:if="${u.ativa}">Ativa</span>
+                <span class="badge badge-inativa" th:unless="${u.ativa}">Inativa</span>
+            </td>
+            <td>
+                <div class="acoes">
+                    <a class="btn-edit" style="background:#00B37E;"
+                       th:href="@{/admin/unidades/{id}/servicos(id=${u.id})}">Serviços</a>
+                    <a class="btn-edit" th:href="@{/admin/unidades/editar/{id}(id=${u.id})}">Editar</a>
+                    <form th:action="@{/admin/unidades/status/{id}(id=${u.id})}" method="post" style="margin:0">
+                        <button type="submit"
+                                th:class="${u.ativa ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}"
+                                th:text="${u.ativa ? 'Desativar' : 'Ativar'}">
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(unidades)}">
+            <td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px;">
+                Nenhuma unidade cadastrada.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

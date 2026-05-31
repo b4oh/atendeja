@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Atendente</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 12px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 20px; }
+        .header h1 span { color: #00B37E; }
+        .header .info { font-size: 13px; color: rgba(255,255,255,0.7); }
+        .header .info strong { color: #fff; }
+        .header-links { display: flex; gap: 8px; }
+        .header-links a, .header-links button {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 6px;
+            border: none; cursor: pointer;
+        }
+        .header-links form { display: inline; margin: 0; }
+        .content { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 48px); }
+
+        /* Sidebar */
+        .sidebar { background: #fff; border-right: 1px solid #E5E7EB; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+        .section-title { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #7A8694; font-weight: 600; margin-bottom: 8px; }
+        .guiche-box { background: #1A3C5E; border-radius: 12px; padding: 16px; color: #fff; text-align: center; }
+        .guiche-box .num { font-size: 36px; font-weight: 800; color: #00B37E; }
+        .guiche-box .lbl { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .senha-card {
+            background: linear-gradient(135deg, #00875A, #00B37E);
+            border-radius: 12px; padding: 20px; text-align: center; color: #fff;
+        }
+        .senha-card .lbl { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; }
+        .senha-card .num { font-size: 52px; font-weight: 800; line-height: 1; margin: 4px 0; }
+        .senha-card .svc { font-size: 13px; opacity: 0.85; }
+        .senha-card .prio { margin-top: 8px; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 4px; font-size: 11px; }
+        .sem-senha { text-align: center; color: #9CA3AF; padding: 24px; font-size: 14px; }
+        .btn {
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700;
+            cursor: pointer; border: none; text-align: center; margin-top: 4px;
+        }
+        .btn-chamar { background: #1A3C5E; color: #fff; }
+        .btn-chamar:hover { background: #122e4a; }
+        .btn-fechar { background: #F3F4F6; color: #374151; border: 1px solid #D1D5DB; margin-top: 8px; }
+        .btn-fechar:hover { background: #E5E7EB; }
+        .fila-list { display: flex; flex-direction: column; gap: 6px; }
+        .fila-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 10px; background: #F4F6F9; border-radius: 6px; font-size: 13px;
+        }
+        .fila-item .fi-num { font-weight: 700; color: #1A3C5E; }
+        .fila-item .fi-tipo { color: #7A8694; }
+        .fila-item .fi-prio { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+
+        /* Main */
+        .main { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+        .main h2 { font-size: 20px; color: #1A3C5E; }
+        .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; }
+        .alert-success { background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; }
+        .alert-error { background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; }
+        .form-card {
+            background: #fff; border-radius: 14px; padding: 24px;
+            border: 1px solid #E5E7EB;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label {
+            font-size: 12px; font-weight: 600; color: #7A8694;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            border: 1.5px solid #D1D5DB; border-radius: 8px; padding: 10px 14px;
+            font-size: 14px; color: #1F2937; outline: none; font-family: 'Segoe UI', sans-serif;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #00B37E; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .desfecho-btns { display: flex; gap: 8px; margin-bottom: 16px; }
+        .desfecho-btn {
+            flex: 1; padding: 10px; border-radius: 8px; border: 1.5px solid #D1D5DB;
+            background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center;
+            transition: all 0.2s;
+        }
+        .desfecho-btn:hover { border-color: #00B37E; }
+        .desfecho-btn.selected { background: #00B37E; color: #fff; border-color: #00B37E; }
+        .form-actions { display: flex; gap: 12px; }
+        .btn-finalizar { flex: 1; padding: 12px; background: #00B37E; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .btn-finalizar:hover { background: #00875A; }
+        .form-sem-senha { text-align: center; color: #9CA3AF; padding: 40px; font-size: 16px; }
+        .form-sem-senha .icon { font-size: 40px; margin-bottom: 12px; display: block; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span> — <span style="font-weight:400;font-size:14px;color:rgba(255,255,255,0.6)">Atendente</span></h1>
+    <div class="info">
+        <strong th:text="${usuario.nome}"></strong> · Guichê <strong th:text="${guiche.numero}"></strong> · <span th:text="${unidade.nome}"></span>
+    </div>
+    <div class="header-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <form th:action="@{/atendente/fechar/{id}(id=${guiche.id})}" method="post">
+            <button type="submit">Fechar Guichê</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="section-title">Meu Guichê</div>
+            <div class="guiche-box">
+                <div class="num" th:text="${guiche.numero}"></div>
+                <div class="lbl" th:text="${unidade.nome}"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title">Senha Atual</div>
+            <div class="senha-card" th:if="${senhaAtual != null}">
+                <div class="lbl">Em atendimento</div>
+                <div class="num" th:text="${senhaAtual.numero}"></div>
+                <div class="svc" th:text="${senhaAtual.servico.nome}"></div>
+                <span class="prio" th:if="${senhaAtual.prioritaria}">⭐ Prioritária</span>
+            </div>
+            <div class="sem-senha" th:if="${senhaAtual == null}">
+                Nenhuma senha em atendimento
+            </div>
+        </div>
+
+        <div>
+            <form th:action="@{/atendente/chamar/{id}(id=${guiche.id})}" method="post">
+                <button type="submit" class="btn btn-chamar">▶ Chamar Próxima Senha</button>
+            </form>
+        </div>
+
+        <div>
+            <div class="section-title">Fila — Próximas</div>
+            <div class="fila-list">
+                <div class="fila-item" th:each="s : ${fila}" th:if="${#lists.size(fila) > 0}">
+                    <span class="fi-num" th:text="${s.numero}"></span>
+                    <span class="fi-tipo" th:text="${s.servico.nome}"></span>
+                    <span class="fi-prio" th:if="${s.prioritaria}">Prio.</span>
+                </div>
+                <div th:if="${#lists.isEmpty(fila)}" style="color:#9CA3AF;font-size:13px;text-align:center;padding:12px;">
+                    Fila vazia
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/atendente/fechar/{id}(id=${guiche.id})}" method="post">
+            <button type="submit" class="btn btn-fechar">✕ Fechar Guichê</button>
+        </form>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+        <!-- Com senha para atender -->
+        <div th:if="${senhaAtual != null}">
+            <h2 th:text="'Registrar Atendimento — Senha ' + ${senhaAtual.numero}"></h2>
+
+            <div class="form-card">
+                <form th:action="@{/atendente/finalizar/{id}(id=${guiche.id})}" method="post">
+                    <input type="hidden" name="senhaId" th:value="${senhaAtual.id}"/>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>CPF do paciente (opcional)</label>
+                            <input type="text" name="cpfPaciente" placeholder="Somente números" maxlength="11"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Tempo de espera</label>
+                            <input type="text" disabled
+                                   th:value="${senhaAtual.emitidaEm != null ? 'Desde ' + #temporals.format(senhaAtual.emitidaEm, 'HH:mm') : '—'}"
+                                   style="background:#F4F6F9;color:#7A8694;"/>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#7A8694;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block;">
+                            Desfecho do atendimento
+                        </label>
+                        <div class="desfecho-btns">
+                            <label class="desfecho-btn" id="btn-ATENDIDO" onclick="selecionarDesfecho('ATENDIDO')">
+                                <input type="radio" name="desfecho" value="ATENDIDO" style="display:none;" checked/>
+                                ✅ Atendido
+                            </label>
+                            <label class="desfecho-btn" id="btn-REDIRECIONADO" onclick="selecionarDesfecho('REDIRECIONADO')">
+                                <input type="radio" name="desfecho" value="REDIRECIONADO" style="display:none;"/>
+                                ↪️ Redirecionado
+                            </label>
+                            <label class="desfecho-btn" id="btn-NAO_COMPARECEU" onclick="selecionarDesfecho('NAO_COMPARECEU')">
+                                <input type="radio" name="desfecho" value="NAO_COMPARECEU" style="display:none;"/>
+                                ❌ Não compareceu
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label>Observações</label>
+                        <textarea name="observacoes" placeholder="Anotações sobre o atendimento..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-finalizar">✓ Finalizar e Chamar Próximo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sem senha -->
+        <div th:if="${senhaAtual == null}">
+            <div class="form-card">
+                <div class="form-sem-senha">
+                    <span class="icon">🎯</span>
+                    Clique em "Chamar Próxima Senha" para iniciar um atendimento.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Marca o primeiro desfecho como selecionado
+    document.getElementById('btn-ATENDIDO').classList.add('selected');
+
+    function selecionarDesfecho(valor) {
+        document.querySelectorAll('.desfecho-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('btn-' + valor).classList.add('selected');
+        document.querySelector('input[value="' + valor + '"]').checked = true;
+    }
+</script>
+</body>
+</html>

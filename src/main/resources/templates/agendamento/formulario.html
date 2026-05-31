@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Agendar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0F2D45, #0A1A28);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .logo { text-align: center; margin-bottom: 24px; }
+        .logo h1 { font-size: 36px; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #00B37E; }
+        .card {
+            background: #fff; border-radius: 16px; padding: 36px;
+            max-width: 520px; width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .card h2 { font-size: 20px; color: #1A3C5E; margin-bottom: 4px; }
+        .card .sub { color: #7A8694; font-size: 14px; margin-bottom: 24px; }
+        .exame-info {
+            background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px;
+            padding: 16px; margin-bottom: 20px; text-align: center;
+        }
+        .exame-info .nome { font-size: 18px; font-weight: 700; color: #065F46; }
+        .exame-info .desc { font-size: 13px; color: #7A8694; margin-top: 4px; }
+        .exame-info .duracao { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
+        .alert-error {
+            background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B;
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; font-size: 13px; font-weight: 600; color: #374151;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%; padding: 12px 14px; border: 1.5px solid #D1D5DB;
+            border-radius: 8px; font-size: 15px; color: #1F2937; outline: none;
+        }
+        .form-group input:focus { border-color: #00B37E; }
+        .hint { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
+        .btn-buscar {
+            width: 100%; padding: 12px; background: #1A3C5E; color: #fff; border: none;
+            border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px;
+        }
+        .btn-buscar:hover { background: #122e4a; }
+
+        /* Horários */
+        .horarios-titulo {
+            font-size: 13px; font-weight: 600; color: #374151; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 24px;
+        }
+        .horarios-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;
+        }
+        .horario-btn {
+            padding: 12px 8px; border: 1.5px solid #D1D5DB; border-radius: 8px;
+            background: #fff; font-size: 15px; font-weight: 600; color: #1A3C5E;
+            cursor: pointer; text-align: center; transition: all 0.2s;
+        }
+        .horario-btn:hover { border-color: #00B37E; background: #F0FDF4; }
+        .horario-btn.selected { background: #00B37E; color: #fff; border-color: #00B37E; }
+        .horarios-vazio {
+            text-align: center; color: #991B1B; background: #FEF2F2;
+            border: 1px solid #FECACA; border-radius: 8px; padding: 16px; font-size: 14px;
+        }
+        .horarios-info {
+            display: flex; justify-content: space-between; margin-bottom: 12px;
+            font-size: 13px; color: #7A8694;
+        }
+        .horarios-info strong { color: #00B37E; }
+        .btn-confirmar {
+            width: 100%; padding: 14px; background: #00B37E; color: #fff; border: none;
+            border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer;
+            display: none;
+        }
+        .btn-confirmar:hover { background: #00875A; }
+        .btn-confirmar.visivel { display: block; }
+        .btn-voltar {
+            display: inline-block; margin-top: 16px; color: #7A8694;
+            text-decoration: none; font-size: 14px; text-align: center; width: 100%;
+        }
+        .btn-voltar:hover { color: #00B37E; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="logo">
+    <h1>Atende<span>Já</span></h1>
+</div>
+
+<div class="card" th:if="${exame != null}">
+    <h2>Agendar Exame</h2>
+    <p class="sub" th:text="${unidade.nome}"></p>
+
+    <div class="exame-info">
+        <div class="nome" th:text="${exame.nome}"></div>
+        <div class="desc" th:text="${exame.descricao}"></div>
+        <div class="duracao" th:text="'Duração: ~' + ${exame.duracaoMinutos} + ' min · ' + ${exame.vagasPorDia} + ' vagas/dia'"></div>
+    </div>
+
+    <div class="alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+    <!-- Passo 1: Selecionar data -->
+    <form th:action="@{/agendamento/novo/{uid}/{eid}(uid=${unidade.id},eid=${exame.id})}" method="get">
+        <div class="form-group">
+            <label for="data">1. Selecione a data</label>
+            <input type="date" id="data" name="data" required
+                   th:min="${dataMinima}" th:value="${dataSelecionada}"/>
+            <p class="hint">Selecione uma data a partir de amanhã</p>
+        </div>
+        <button type="submit" class="btn-buscar">Buscar horários disponíveis</button>
+    </form>
+
+    <!-- Passo 2: Selecionar horário (só aparece após selecionar a data) -->
+    <div th:if="${horarios != null}">
+        <div class="horarios-titulo">2. Selecione o horário</div>
+
+        <div class="horarios-info" th:if="${!horarios.isEmpty()}">
+            <span th:text="${horarios.size()} + ' horários disponíveis'"></span>
+            <span>Data: <strong th:text="${dataSelecionada}"></strong></span>
+        </div>
+
+        <div th:if="${!horarios.isEmpty()}">
+            <form th:action="@{/agendamento/confirmar}" method="post" id="formConfirmar">
+                <input type="hidden" name="unidadeId" th:value="${unidade.id}"/>
+                <input type="hidden" name="exameId" th:value="${exame.id}"/>
+                <input type="hidden" name="dataExame" th:value="${dataSelecionada}"/>
+                <input type="hidden" name="horaExame" id="horaExameSelecionada" value=""/>
+
+                <div class="horarios-grid">
+                    <div class="horario-btn" th:each="h : ${horarios}"
+                         th:text="${h}" th:data-hora="${h}"
+                         onclick="selecionarHorario(this)">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-confirmar" id="btnConfirmar">
+                    ✓ Confirmar Agendamento
+                </button>
+            </form>
+        </div>
+
+        <div class="horarios-vazio" th:if="${horarios.isEmpty()}">
+            😔 Todos os horários estão ocupados nesta data. Selecione outra data.
+        </div>
+    </div>
+
+    <a class="btn-voltar" th:href="@{/agendamento/novo/{id}(id=${unidade.id})}">← Voltar para exames</a>
+</div>
+
+<script>
+    function selecionarHorario(el) {
+        document.querySelectorAll('.horario-btn').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('horaExameSelecionada').value = el.dataset.hora;
+        document.getElementById('btnConfirmar').classList.add('visivel');
+    }
+</script>
+</body>
+</html>

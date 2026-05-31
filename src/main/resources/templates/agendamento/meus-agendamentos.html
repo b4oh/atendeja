@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Meus Agendamentos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 22px; }
+        .header h1 span { color: #00B37E; }
+        .header-links { display: flex; gap: 8px; }
+        .header-links a { color: #fff; text-decoration: none; font-size: 14px;
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; }
+        .header-links form { display: inline; margin: 0; }
+        .header-links button { background: rgba(255,255,255,0.15); color: #fff; border: none;
+            padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .content { padding: 32px; max-width: 1000px; margin: 0 auto; }
+        .page-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-title h2 { font-size: 24px; color: #1A3C5E; }
+        .btn-novo { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            text-decoration: none; background: #00B37E; color: #fff; }
+        .btn-novo:hover { background: #00875A; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .alert-success { background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; }
+        .alert-error { background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        thead th { background: #F4F6F9; padding: 12px 16px; text-align: left; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #7A8694; font-weight: 600; }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid #F3F4F6; font-size: 14px; color: #1F2937; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #FAFBFC; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-agendado { background: #DBEAFE; color: #1E40AF; }
+        .badge-confirmado { background: #D1FAE5; color: #065F46; }
+        .badge-cancelado { background: #FEE2E2; color: #991B1B; }
+        .badge-realizado { background: #E0E7FF; color: #3730A3; }
+        .badge-naocomp { background: #FEF3C7; color: #92400E; }
+        .btn-cancelar { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none;
+            cursor: pointer; font-weight: 600; background: #FEE2E2; color: #991B1B; }
+        .btn-cancelar:hover { background: #FECACA; }
+        .empty-msg { text-align: center; color: #9CA3AF; padding: 32px; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span></h1>
+    <div class="header-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="page-title">
+        <h2>📋 Meus Agendamentos</h2>
+        <a class="btn-novo" th:href="@{/agendamento/novo}">+ Agendar Exame</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Exame</th>
+            <th>Unidade</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="a : ${agendamentos}">
+            <td th:text="${a.tipoExame.nome}"></td>
+            <td th:text="${a.unidade.nome}"></td>
+            <td th:text="${#temporals.format(a.dataExame, 'dd/MM/yyyy')}"></td>
+            <td th:text="${a.horaExame}"></td>
+            <td>
+                <span class="badge badge-agendado" th:if="${a.status.name() == 'AGENDADO'}">Agendado</span>
+                <span class="badge badge-confirmado" th:if="${a.status.name() == 'CONFIRMADO'}">Confirmado</span>
+                <span class="badge badge-cancelado" th:if="${a.status.name() == 'CANCELADO'}">Cancelado</span>
+                <span class="badge badge-realizado" th:if="${a.status.name() == 'REALIZADO'}">Realizado</span>
+                <span class="badge badge-naocomp" th:if="${a.status.name() == 'NAO_COMPARECEU'}">Não compareceu</span>
+            </td>
+            <td>
+                <form th:action="@{/agendamento/cancelar/{id}(id=${a.id})}" method="post"
+                      th:if="${a.status.name() == 'AGENDADO' || a.status.name() == 'CONFIRMADO'}"
+                      style="margin:0;">
+                    <button type="submit" class="btn-cancelar"
+                            onclick="return confirm('Tem certeza que deseja cancelar?')">Cancelar</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(agendamentos)}">
+            <td colspan="6" class="empty-msg">Você ainda não tem agendamentos. Clique em "+ Agendar Exame" para começar.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

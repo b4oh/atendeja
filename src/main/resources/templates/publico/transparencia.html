@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Transparência Pública</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .topbar {
+            background: #1A3C5E; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .topbar h1 { font-size: 22px; }
+        .topbar h1 span { color: #00B37E; }
+        .topbar .badge-pub {
+            background: rgba(0,179,126,0.2); color: #00B37E; padding: 6px 14px;
+            border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1px;
+        }
+        .topbar-links a { color: #fff; text-decoration: none; font-size: 14px;
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; }
+        .content { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+        .page-title { margin-bottom: 20px; }
+        .page-title h2 { font-size: 24px; color: #1A3C5E; }
+        .page-title p { color: #7A8694; font-size: 14px; margin-top: 4px; }
+
+        /* Filtros */
+        .filtros {
+            background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 24px;
+            border: 1px solid #E5E7EB; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+        }
+        .filtro-group { display: flex; flex-direction: column; gap: 4px; }
+        .filtro-group label { font-size: 12px; font-weight: 600; color: #7A8694; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filtro-group select, .filtro-group input {
+            padding: 8px 12px; border: 1.5px solid #D1D5DB; border-radius: 6px;
+            font-size: 14px; color: #1F2937; outline: none; font-family: 'Segoe UI', sans-serif;
+        }
+        .filtro-group select:focus, .filtro-group input:focus { border-color: #00B37E; }
+        .btn-filtrar {
+            padding: 8px 20px; background: #1A3C5E; color: #fff; border: none;
+            border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; height: 38px;
+        }
+        .btn-filtrar:hover { background: #122e4a; }
+        .btn-limpar {
+            padding: 8px 20px; background: #F3F4F6; color: #374151; border: 1px solid #D1D5DB;
+            border-radius: 6px; font-size: 14px; cursor: pointer; height: 38px; text-decoration: none;
+            display: flex; align-items: center;
+        }
+
+        /* Contador */
+        .contador {
+            display: flex; gap: 24px; margin-bottom: 20px;
+        }
+        .cont-item { font-size: 14px; color: #7A8694; }
+        .cont-item strong { color: #1A3C5E; font-size: 18px; }
+
+        /* Tabela */
+        .table-container {
+            background: #fff; border-radius: 12px; border: 1px solid #E5E7EB;
+            overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th {
+            background: #1A3C5E; color: #fff; padding: 12px 16px; text-align: left;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+        }
+        tbody td { padding: 12px 16px; border-bottom: 1px solid #F3F4F6; color: #1F2937; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #FAFBFC; }
+        tbody tr.cancelado { background: #FEF2F2; }
+        tbody tr.cancelado td { color: #991B1B; }
+        tbody tr.nao-comp { background: #FEF2F2; }
+        tbody tr.nao-comp td { color: #991B1B; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .badge-agendado { background: #DBEAFE; color: #1E40AF; }
+        .badge-confirmado { background: #D1FAE5; color: #065F46; }
+        .badge-cancelado { background: #FEE2E2; color: #991B1B; }
+        .badge-realizado { background: #E0E7FF; color: #3730A3; }
+        .badge-naocomp { background: #FEF3C7; color: #92400E; }
+        .cpf-mask { font-family: 'Courier New', monospace; letter-spacing: 1px; }
+        .empty-msg { text-align: center; color: #9CA3AF; padding: 40px; font-size: 15px; }
+
+        /* Rodapé */
+        .rodape {
+            margin-top: 24px; text-align: center; color: #9CA3AF; font-size: 12px;
+            padding: 16px; border-top: 1px solid #E5E7EB;
+        }
+        .rodape strong { color: #1A3C5E; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="topbar">
+    <h1>Atende<span>Já</span></h1>
+    <span class="badge-pub">🔓 ACESSO PÚBLICO</span>
+    <div class="topbar-links">
+        <a th:href="@{/totem}">Totem</a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="page-title">
+        <h2>📋 Painel de Transparência</h2>
+        <p>Agendamentos de exames nas unidades de saúde do SUS — Maceió/AL</p>
+    </div>
+
+    <!-- Filtros -->
+    <form class="filtros" th:action="@{/transparencia}" method="get">
+        <div class="filtro-group">
+            <label>Unidade</label>
+            <select name="unidadeId">
+                <option value="">Todas as unidades</option>
+                <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.nome}"
+                        th:selected="${unidadeSelecionada != null && u.id == unidadeSelecionada}"></option>
+            </select>
+        </div>
+        <div class="filtro-group">
+            <label>Data</label>
+            <input type="date" name="data" th:value="${dataSelecionada}"/>
+        </div>
+        <button type="submit" class="btn-filtrar">Filtrar</button>
+        <a class="btn-limpar" th:href="@{/transparencia}">Limpar</a>
+    </form>
+
+    <!-- Contador -->
+    <div class="contador">
+        <div class="cont-item">
+            <strong th:text="${agendamentos.size()}">0</strong> agendamentos encontrados
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Exame</th>
+                <th>Unidade</th>
+                <th>Município</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${agendamentos}"
+                th:classappend="${a.status.name() == 'CANCELADO' ? 'cancelado' : (a.status.name() == 'NAO_COMPARECEU' ? 'nao-comp' : '')}">
+                <td th:text="${a.usuario.nome}"></td>
+                <td class="cpf-mask"
+                    th:text="${a.usuario.cpf.substring(0,2) + '*.***.***-' + a.usuario.cpf.substring(9)}"></td>
+                <td th:text="${a.tipoExame.nome}"></td>
+                <td th:text="${a.unidade.nome}"></td>
+                <td>MACEIÓ</td>
+                <td th:text="${#temporals.format(a.dataExame, 'dd/MM/yyyy')}"></td>
+                <td th:text="${a.horaExame}"></td>
+                <td>
+                    <span class="badge badge-agendado" th:if="${a.status.name() == 'AGENDADO'}">Agendado</span>
+                    <span class="badge badge-confirmado" th:if="${a.status.name() == 'CONFIRMADO'}">Confirmado</span>
+                    <span class="badge badge-cancelado" th:if="${a.status.name() == 'CANCELADO'}">Cancelado</span>
+                    <span class="badge badge-realizado" th:if="${a.status.name() == 'REALIZADO'}">Realizado</span>
+                    <span class="badge badge-naocomp" th:if="${a.status.name() == 'NAO_COMPARECEU'}">Não compareceu</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(agendamentos)}">
+                <td colspan="8" class="empty-msg">Nenhum agendamento encontrado para os filtros selecionados.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="rodape">
+        <strong>AtendeJá</strong> — Sistema de Gerenciamento de Filas e Agendamentos do SUS<br/>
+        Secretaria de Estado da Saúde de Alagoas · Dados atualizados em tempo real
+    </div>
+</div>
+</body>
+</html>

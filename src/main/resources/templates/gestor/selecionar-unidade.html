@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Relatórios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 22px; }
+        .header h1 span { color: #00B37E; }
+        .header-links { display: flex; gap: 8px; }
+        .header-links a { color: #fff; text-decoration: none; font-size: 14px;
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; }
+        .header-links form { display: inline; margin: 0; }
+        .header-links button { background: rgba(255,255,255,0.15); color: #fff; border: none;
+            padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .content { padding: 32px; max-width: 700px; margin: 0 auto; }
+        .page-title h2 { font-size: 24px; color: #1A3C5E; margin-bottom: 8px; }
+        .page-title p { color: #7A8694; font-size: 14px; margin-bottom: 24px; }
+        .unidades { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .unidade-btn {
+            background: #fff; border-radius: 12px; padding: 24px; text-align: center;
+            border: 1.5px solid #E5E7EB; text-decoration: none; color: #1A3C5E;
+            transition: all 0.2s;
+        }
+        .unidade-btn:hover { border-color: #00B37E; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .unidade-btn .icon { font-size: 32px; margin-bottom: 8px; display: block; }
+        .unidade-btn .nome { font-size: 16px; font-weight: 700; display: block; }
+        .unidade-btn .tipo { font-size: 12px; color: #7A8694; margin-top: 4px; display: block; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span></h1>
+    <div class="header-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="page-title">
+        <h2>📊 Relatórios Gerenciais</h2>
+        <p>Selecione a unidade para visualizar o dashboard</p>
+    </div>
+
+    <div class="unidades">
+        <a class="unidade-btn" th:each="u : ${unidades}"
+           th:href="@{/gestor/dashboard/{id}(id=${u.id})}">
+                <span class="icon"
+                      th:text="${u.tipo.name() == 'UBS' ? '🏥' : u.tipo.name() == 'UPA' ? '🚑' : u.tipo.name() == 'HOSPITAL' ? '🏨' : '🏥'}"></span>
+            <span class="nome" th:text="${u.nome}"></span>
+            <span class="tipo" th:text="${u.tipo}"></span>
+        </a>
+    </div>
+</div>
+</body>
+</html>

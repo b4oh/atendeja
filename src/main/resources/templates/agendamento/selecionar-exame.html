@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Selecionar Exame</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0F2D45, #0A1A28);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .logo { text-align: center; margin-bottom: 16px; }
+        .logo h1 { font-size: 36px; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #00B37E; }
+        .unidade-info {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 12px 28px; color: rgba(255,255,255,0.7);
+            font-size: 14px; text-align: center; margin-bottom: 24px;
+        }
+        .unidade-info strong { color: #fff; display: block; font-size: 16px; margin-bottom: 2px; }
+        .subtitle { color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 20px; }
+        .exames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; max-width: 560px; width: 100%; }
+        .exame-btn {
+            background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 24px 16px; text-align: center;
+            color: #fff; text-decoration: none; transition: all 0.25s;
+        }
+        .exame-btn:hover { background: rgba(0,179,126,0.15); border-color: #00B37E; transform: translateY(-2px); }
+        .exame-btn .icon { font-size: 28px; margin-bottom: 8px; display: block; }
+        .exame-btn .nome { font-size: 15px; font-weight: 700; display: block; }
+        .exame-btn .desc { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
+        .exame-btn .info { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 6px; display: block; }
+        .btn-voltar { display: inline-block; margin-top: 24px; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; }
+        .btn-voltar:hover { color: #00B37E; }
+        .empty { color: rgba(255,255,255,0.4); font-size: 16px; text-align: center; padding: 40px; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="logo">
+    <h1>Atende<span>Já</span></h1>
+</div>
+
+<div class="unidade-info" th:if="${unidade != null}">
+    <strong th:text="${unidade.nome}"></strong>
+    <span th:text="${unidade.tipo}"></span>
+</div>
+
+<p class="subtitle">Selecione o exame</p>
+
+<div class="exames">
+    <a class="exame-btn" th:each="e : ${exames}"
+       th:href="@{/agendamento/novo/{uid}/{eid}(uid=${unidade.id},eid=${e.id})}">
+        <span class="icon">🧪</span>
+        <span class="nome" th:text="${e.nome}"></span>
+        <span class="desc" th:text="${e.descricao}"></span>
+        <span class="info" th:text="'⏱ ' + ${e.duracaoMinutos} + ' min · ' + ${e.vagasPorDia} + ' vagas/dia'"></span>
+    </a>
+</div>
+
+<div class="empty" th:if="${#lists.isEmpty(exames)}">
+    Nenhum exame disponível nesta unidade.
+</div>
+
+<a class="btn-voltar" th:href="@{/agendamento/novo}">← Voltar</a>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Consultar Fila</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0F2D45, #0A1A28);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo h1 { font-size: 36px; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #00B37E; }
+        .logo p { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 4px; }
+        .card {
+            background: #fff; border-radius: 16px; padding: 32px;
+            max-width: 420px; width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .card h2 { font-size: 20px; color: #1A3C5E; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: 13px; font-weight: 600; color: #374151;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+        }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 14px; border: 1.5px solid #D1D5DB;
+            border-radius: 8px; font-size: 14px; color: #1F2937; outline: none;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #00B37E; }
+        .btn-consultar {
+            width: 100%; padding: 14px; background: #1A3C5E; color: #fff; border: none;
+            border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer;
+            margin-top: 8px;
+        }
+        .btn-consultar:hover { background: #122e4a; }
+        .resultado {
+            margin-top: 24px; padding: 24px; background: #F0FDF4;
+            border: 1px solid #BBF7D0; border-radius: 12px; text-align: center;
+        }
+        .resultado .senha-num { font-size: 48px; font-weight: 800; color: #1A3C5E; }
+        .resultado .servico { font-size: 14px; color: #374151; margin-top: 4px; }
+        .resultado .unidade { font-size: 13px; color: #9CA3AF; margin-top: 2px; }
+        .resultado .posicao-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;
+        }
+        .resultado .posicao-item {
+            background: #fff; border-radius: 8px; padding: 12px; text-align: center;
+        }
+        .resultado .posicao-item .val { font-size: 28px; font-weight: 800; color: #1A3C5E; }
+        .resultado .posicao-item .lbl { font-size: 11px; color: #9CA3AF; text-transform: uppercase; margin-top: 2px; }
+        .resultado .status-badge {
+            display: inline-block; margin-top: 12px; padding: 4px 12px;
+            background: #DBEAFE; color: #1E40AF; border-radius: 6px;
+            font-size: 12px; font-weight: 600;
+        }
+        .nao-encontrada {
+            margin-top: 24px; padding: 20px; background: #FEF2F2;
+            border: 1px solid #FECACA; border-radius: 12px; text-align: center;
+            color: #991B1B; font-size: 14px;
+        }
+        .links { text-align: center; margin-top: 24px; }
+        .links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; }
+        .links a:hover { color: #00B37E; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="logo">
+    <h1>Atende<span>Já</span></h1>
+    <p>Consulte sua posição na fila — sem login</p>
+</div>
+
+<div class="card">
+    <h2>🔍 Consultar Senha</h2>
+
+    <form th:action="@{/senha/consultar}" method="post">
+        <div class="form-group">
+            <label for="numero">Número da senha</label>
+            <input type="text" id="numero" name="numero" required
+                   placeholder="Ex: A042" style="text-transform:uppercase;font-size:18px;font-weight:700;text-align:center;"/>
+        </div>
+
+        <div class="form-group">
+            <label for="unidadeId">Unidade de saúde</label>
+            <select id="unidadeId" name="unidadeId" required>
+                <option value="">Selecione a unidade...</option>
+                <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.nome}"></option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-consultar">Consultar</button>
+    </form>
+
+    <!-- Resultado encontrado -->
+    <div class="resultado" th:if="${senha != null}">
+        <div class="senha-num" th:text="${senha.numero}"></div>
+        <div class="servico" th:text="${senha.servico.nome}"></div>
+        <div class="unidade" th:text="${senha.unidade.nome}"></div>
+
+        <div class="posicao-grid">
+            <div class="posicao-item">
+                <div class="val" th:text="${posicao}"></div>
+                <div class="lbl">Posição na fila</div>
+            </div>
+            <div class="posicao-item">
+                <div class="val" th:text="'~' + ${tempoEstimado} + 'min'"></div>
+                <div class="lbl">Tempo estimado</div>
+            </div>
+        </div>
+
+        <span class="status-badge" th:text="${senha.status}"></span>
+    </div>
+
+    <!-- Não encontrada -->
+    <div class="nao-encontrada" th:if="${naoEncontrada}">
+        Senha não encontrada na fila. Verifique o número e a unidade selecionada.
+    </div>
+</div>
+
+<div class="links">
+    <a th:href="@{/totem}">← Ir para o totem</a>
+</div>
+</body>
+</html>

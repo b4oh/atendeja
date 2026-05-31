@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Serviços</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 22px; }
+        .header h1 span { color: #00B37E; }
+        .header-links a { color: #fff; text-decoration: none; font-size: 14px; margin-left: 16px;
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; }
+        .header-links form { display: inline; }
+        .header-links button { background: rgba(255,255,255,0.15); color: #fff; border: none;
+            padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .content { padding: 32px; max-width: 900px; margin: 0 auto; }
+        .page-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .page-title h2 { font-size: 24px; color: #1A3C5E; }
+        .subtitle { color: #7A8694; font-size: 14px; margin-bottom: 24px; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            text-decoration: none; cursor: pointer; border: none; }
+        .btn-primary { background: #00B37E; color: #fff; }
+        .btn-primary:hover { background: #00875A; }
+        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; }
+        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-ativar { background: #D1FAE5; color: #065F46; }
+        .btn-desativar { background: #FEE2E2; color: #991B1B; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .alert-success { background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; }
+        .alert-error { background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        thead th { background: #F4F6F9; padding: 12px 16px; text-align: left; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #7A8694; font-weight: 600; }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid #F3F4F6; font-size: 14px; color: #1F2937; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #FAFBFC; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-prefixo { background: #E0E7FF; color: #3730A3; font-size: 16px; font-weight: 800; }
+        .badge-disponivel { background: #D1FAE5; color: #065F46; }
+        .badge-indisponivel { background: #FEE2E2; color: #991B1B; }
+        .acoes { display: flex; gap: 8px; align-items: center; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span></h1>
+    <div class="header-links">
+        <a th:href="@{/admin/unidades}">← Unidades</a>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="page-title">
+        <h2>🩺 Serviços</h2>
+        <a class="btn btn-primary"
+           th:href="@{/admin/unidades/{id}/servicos/novo(id=${unidade.id})}">+ Novo Serviço</a>
+    </div>
+    <p class="subtitle" th:text="${unidade.nome + ' — ' + unidade.tipo}"></p>
+
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Prefixo</th>
+            <th>Serviço</th>
+            <th>Capacidade/dia</th>
+            <th>Disponibilidade</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="s : ${servicos}">
+            <td><span class="badge badge-prefixo" th:text="${s.prefixo}"></span></td>
+            <td th:text="${s.nome}"></td>
+            <td th:text="${s.capacidadeDiaria + ' senhas'}"></td>
+            <td>
+                <span class="badge badge-disponivel" th:if="${s.disponivel}">Disponível</span>
+                <span class="badge badge-indisponivel" th:unless="${s.disponivel}">Indisponível</span>
+            </td>
+            <td>
+                <div class="acoes">
+                    <a class="btn-edit"
+                       th:href="@{/admin/unidades/{uid}/servicos/editar/{sid}(uid=${unidade.id},sid=${s.id})}">Editar</a>
+                    <form th:action="@{/admin/unidades/{uid}/servicos/status/{sid}(uid=${unidade.id},sid=${s.id})}"
+                          method="post" style="margin:0">
+                        <button type="submit"
+                                th:class="${s.disponivel ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}"
+                                th:text="${s.disponivel ? 'Desativar' : 'Ativar'}">
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(servicos)}">
+            <td colspan="5" style="text-align:center;color:#9CA3AF;padding:32px;">
+                Nenhum serviço cadastrado nesta unidade.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

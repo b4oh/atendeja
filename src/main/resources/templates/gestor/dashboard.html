@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Dashboard Gestor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 12px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 20px; }
+        .header h1 span { color: #00B37E; }
+        .header .info { font-size: 13px; color: rgba(255,255,255,0.7); }
+        .header .info strong { color: #fff; }
+        .header-links { display: flex; gap: 8px; }
+        .header-links a { color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 6px; }
+        .header-links form { display: inline; margin: 0; }
+        .header-links button { background: rgba(255,255,255,0.15); color: #fff; border: none;
+            padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .content { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+        .page-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-title h2 { font-size: 22px; color: #1A3C5E; }
+        .page-title .data { color: #7A8694; font-size: 14px; }
+
+        /* Cards de métricas */
+        .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .metric-card {
+            background: #fff; border-radius: 12px; padding: 20px; text-align: center;
+            border: 1px solid #E5E7EB;
+        }
+        .metric-card .val { font-size: 36px; font-weight: 800; color: #1A3C5E; }
+        .metric-card .val.verde { color: #00B37E; }
+        .metric-card .val.amarelo { color: #F5A623; }
+        .metric-card .val.vermelho { color: #EF4444; }
+        .metric-card .lbl { font-size: 11px; color: #7A8694; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+        /* Grid de gráficos */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .chart-card {
+            background: #fff; border-radius: 12px; padding: 24px;
+            border: 1px solid #E5E7EB;
+        }
+        .chart-card h3 { font-size: 15px; color: #1A3C5E; margin-bottom: 16px; }
+
+        /* Barras do gráfico de serviços */
+        .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+        .bar-row { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 120px; font-size: 13px; color: #374151; text-align: right; }
+        .bar-track { flex: 1; height: 28px; background: #F3F4F6; border-radius: 6px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; background: #00B37E; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; min-width: 30px; }
+        .bar-fill span { font-size: 12px; font-weight: 700; color: #fff; }
+
+        /* Gráfico por hora */
+        .hour-chart { display: flex; align-items: flex-end; gap: 4px; height: 150px; padding-top: 10px; }
+        .hour-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .hour-bar {
+            width: 100%; background: #1A3C5E; border-radius: 4px 4px 0 0;
+            min-height: 4px; transition: height 0.3s;
+        }
+        .hour-label { font-size: 10px; color: #7A8694; margin-top: 4px; }
+        .hour-value { font-size: 10px; color: #1A3C5E; font-weight: 700; margin-bottom: 2px; }
+
+        /* Tabela de atendimentos */
+        .table-card {
+            background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden;
+        }
+        .table-card h3 { padding: 16px 20px; font-size: 15px; color: #1A3C5E; border-bottom: 1px solid #E5E7EB; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th {
+            background: #F4F6F9; padding: 10px 16px; text-align: left; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #7A8694; font-weight: 600;
+        }
+        tbody td { padding: 12px 16px; border-bottom: 1px solid #F3F4F6; color: #1F2937; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #FAFBFC; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .badge-atendido { background: #D1FAE5; color: #065F46; }
+        .badge-naocomp { background: #FEE2E2; color: #991B1B; }
+        .badge-redir { background: #FEF3C7; color: #92400E; }
+        .empty-msg { text-align: center; color: #9CA3AF; padding: 32px; font-size: 14px; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span> — <span style="font-weight:400;font-size:14px;color:rgba(255,255,255,0.6)">Gestor</span></h1>
+    <div class="info" th:if="${unidade != null}">
+        <strong th:text="${unidade.nome}"></strong>
+    </div>
+    <div class="header-links">
+        <a th:href="@{/gestor/home}">Trocar Unidade</a>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="page-title">
+        <h2>📊 Visão geral — hoje</h2>
+        <span class="data" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd ''de'' MMMM ''de'' yyyy')}"></span>
+    </div>
+
+    <!-- Cards de métricas -->
+    <div class="metrics">
+        <div class="metric-card">
+            <div class="val" th:text="${senhasEmitidas}">0</div>
+            <div class="lbl">Senhas emitidas</div>
+        </div>
+        <div class="metric-card">
+            <div class="val verde" th:text="${atendimentos}">0</div>
+            <div class="lbl">Atendimentos</div>
+        </div>
+        <div class="metric-card">
+            <div class="val amarelo" th:text="${naFila}">0</div>
+            <div class="lbl">Na fila agora</div>
+        </div>
+        <div class="metric-card">
+            <div class="val vermelho" th:text="${naoComparecimentos}">0</div>
+            <div class="lbl">Não compareceu</div>
+        </div>
+        <div class="metric-card">
+            <div class="val" th:text="${#numbers.formatDecimal(tempoMedio, 0, 1)} + ' min'">0 min</div>
+            <div class="lbl">Tempo médio espera</div>
+        </div>
+    </div>
+
+    <!-- Taxa de atendimento -->
+    <div class="metrics" style="grid-template-columns: 1fr;">
+        <div class="metric-card" style="text-align:left;display:flex;align-items:center;gap:20px;">
+            <div>
+                <div class="val verde" style="font-size:28px;" th:text="${taxaAtendimento + '%'}">0%</div>
+                <div class="lbl">Taxa de atendimento</div>
+            </div>
+            <div style="flex:1;height:16px;background:#F3F4F6;border-radius:8px;overflow:hidden;">
+                <div style="height:100%;background:#00B37E;border-radius:8px;"
+                     th:style="'width:' + ${taxaAtendimento} + '%'"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-grid">
+        <!-- Por serviço -->
+        <div class="chart-card">
+            <h3>Senhas por serviço</h3>
+            <div class="bar-chart">
+                <div class="bar-row" th:each="entry : ${porServico}">
+                    <div class="bar-label" th:text="${entry.key}"></div>
+                    <div class="bar-track">
+                        <div class="bar-fill"
+                             th:style="'width:' + ${senhasEmitidas > 0 ? (entry.value * 100 / senhasEmitidas) : 0} + '%'">
+                            <span th:text="${entry.value}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${porServico.isEmpty()}" class="empty-msg">Sem dados</div>
+            </div>
+        </div>
+
+        <!-- Por hora -->
+        <div class="chart-card">
+            <h3>Fluxo por hora</h3>
+            <div class="hour-chart" th:if="${!porHora.isEmpty()}">
+                <div class="hour-bar-wrapper" th:each="entry : ${porHora}">
+                    <div class="hour-value" th:text="${entry.value}"></div>
+                    <div class="hour-bar"
+                         th:style="'height:' + ${entry.value * 10} + 'px;'"></div>
+                    <div class="hour-label" th:text="${entry.key + 'h'}"></div>
+                </div>
+            </div>
+            <div th:if="${porHora.isEmpty()}" class="empty-msg">Sem dados</div>
+        </div>
+    </div>
+
+    <!-- Últimos atendimentos -->
+    <div class="table-card">
+        <h3>Últimos atendimentos</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Senha</th>
+                <th>Serviço</th>
+                <th>Guichê</th>
+                <th>Atendente</th>
+                <th>Espera</th>
+                <th>Desfecho</th>
+                <th>Horário</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${ultimosAtendimentos}">
+                <td><strong th:text="${a.senha.numero}"></strong></td>
+                <td th:text="${a.senha.servico.nome}"></td>
+                <td th:text="'Guichê ' + ${a.guiche.numero}"></td>
+                <td th:text="${a.atendente.nome}"></td>
+                <td th:text="${a.tempoEsperaMin + ' min'}"></td>
+                <td>
+                            <span class="badge badge-atendido"
+                                  th:if="${a.desfecho.name() == 'ATENDIDO'}">Atendido</span>
+                    <span class="badge badge-naocomp"
+                          th:if="${a.desfecho.name() == 'NAO_COMPARECEU'}">Não compareceu</span>
+                    <span class="badge badge-redir"
+                          th:if="${a.desfecho.name() == 'REDIRECIONADO'}">Redirecionado</span>
+                </td>
+                <td th:text="${#temporals.format(a.realizadoEm, 'HH:mm')}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ultimosAtendimentos)}">
+                <td colspan="7" class="empty-msg">Nenhum atendimento registrado hoje.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Sua Senha</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0F2D45, #0A1A28);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo h1 { font-size: 36px; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #00B37E; }
+        .check-icon { font-size: 48px; margin-bottom: 16px; text-align: center; }
+        .sucesso-msg { color: #00B37E; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+        .sucesso-sub { color: rgba(255,255,255,0.5); font-size: 14px; text-align: center; margin-bottom: 32px; }
+        .comprovante {
+            background: #fff; border-radius: 16px; padding: 40px;
+            max-width: 380px; width: 100%; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .comprovante .header-comp {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 2px dashed #E5E7EB;
+        }
+        .comprovante .header-comp .brand { font-size: 18px; font-weight: 800; color: #1A3C5E; }
+        .comprovante .header-comp .brand span { color: #00B37E; }
+        .comprovante .header-comp .data { font-size: 12px; color: #9CA3AF; }
+        .comprovante .label-senha { font-size: 12px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+        .comprovante .numero-senha { font-size: 72px; font-weight: 800; color: #1A3C5E; line-height: 1; }
+        .comprovante .servico-nome { font-size: 16px; font-weight: 600; color: #374151; margin-top: 8px; }
+        .comprovante .unidade-nome { font-size: 13px; color: #9CA3AF; margin-top: 4px; }
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+            margin-top: 20px; border-top: 1px solid #F3F4F6;
+        }
+        .info-item {
+            padding: 16px 12px; text-align: center;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .info-item:nth-child(odd) { border-right: 1px solid #F3F4F6; }
+        .info-item .val { font-size: 24px; font-weight: 800; color: #1A3C5E; }
+        .info-item .lbl { font-size: 11px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .badge-prio {
+            display: inline-block; margin-top: 12px; padding: 4px 12px;
+            background: #FEF3C7; color: #92400E; border-radius: 6px;
+            font-size: 12px; font-weight: 600;
+        }
+        .actions { margin-top: 32px; display: flex; gap: 12px; width: 100%; max-width: 380px; }
+        .btn-nova {
+            flex: 1; padding: 14px; background: #1A3C5E; color: #fff; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer;
+            text-decoration: none; text-align: center;
+        }
+        .btn-nova:hover { background: #122e4a; }
+        .btn-consultar {
+            flex: 1; padding: 14px; background: rgba(255,255,255,0.1); color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.2); border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            text-decoration: none; text-align: center;
+        }
+        .btn-consultar:hover { border-color: #00B37E; color: #00B37E; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="logo">
+    <h1>Atende<span>Já</span></h1>
+</div>
+
+<div class="check-icon">✅</div>
+<p class="sucesso-msg">Senha gerada com sucesso!</p>
+<p class="sucesso-sub">Aguarde sua senha ser chamada no painel</p>
+
+<div class="comprovante" th:if="${senha != null}">
+    <div class="header-comp">
+        <div class="brand">Atende<span>Já</span></div>
+        <div class="data" th:text="${#temporals.format(senha.emitidaEm, 'dd/MM/yyyy HH:mm')}"></div>
+    </div>
+
+    <div class="label-senha">SUA SENHA</div>
+    <div class="numero-senha" th:text="${senha.numero}"></div>
+    <div class="servico-nome" th:text="${senha.servico.nome}"></div>
+    <div class="unidade-nome" th:text="${senha.unidade.nome}"></div>
+
+    <span class="badge-prio" th:if="${senha.prioritaria}">⭐ PRIORITÁRIA</span>
+
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="val" th:text="${posicao}"></div>
+            <div class="lbl">À frente</div>
+        </div>
+        <div class="info-item">
+            <div class="val" th:text="'~' + ${tempoEstimado} + ' min'"></div>
+            <div class="lbl">Tempo estimado</div>
+        </div>
+    </div>
+</div>
+
+<div class="actions">
+    <a class="btn-nova" th:href="@{/totem}">Nova Senha</a>
+    <a class="btn-consultar" th:href="@{/senha/consultar}">Consultar Fila</a>
+</div>
+</body>
+</html>

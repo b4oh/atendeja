@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Tirar Senha</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0F2D45, #0A1A28);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .logo { text-align: center; margin-bottom: 16px; }
+        .logo h1 { font-size: 36px; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #00B37E; }
+        .unidade-info {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 12px 28px; color: rgba(255,255,255,0.7);
+            font-size: 14px; text-align: center; margin-bottom: 24px;
+        }
+        .unidade-info strong { color: #fff; display: block; font-size: 16px; margin-bottom: 2px; }
+        .subtitle { color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 20px; }
+        .alert-error {
+            background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+            color: #FCA5A5; padding: 12px 20px; border-radius: 10px;
+            margin-bottom: 20px; font-size: 14px; max-width: 560px; width: 100%; text-align: center;
+        }
+        .servicos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 560px; }
+        .servico-card {
+            background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 24px 16px; text-align: center; color: #fff;
+            cursor: pointer; transition: all 0.25s;
+        }
+        .servico-card:hover {
+            background: rgba(0,179,126,0.15); border-color: #00B37E; transform: translateY(-2px);
+        }
+        .servico-card.selected {
+            background: rgba(0,179,126,0.2); border-color: #00B37E;
+        }
+        .servico-card .icon { font-size: 28px; margin-bottom: 8px; display: block; }
+        .servico-card .nome { font-size: 15px; font-weight: 700; display: block; }
+        .servico-card .prefixo { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; display: block; }
+        .form-section {
+            width: 100%; max-width: 560px; margin-top: 24px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 24px; display: none;
+        }
+        .form-section.visible { display: block; }
+        .form-section label { display: block; color: rgba(255,255,255,0.7); font-size: 13px;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .form-section input[type="text"] {
+            width: 100%; padding: 10px 14px; border: 1.5px solid rgba(255,255,255,0.2);
+            border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;
+            font-size: 14px; outline: none; margin-bottom: 16px;
+        }
+        .form-section input[type="text"]:focus { border-color: #00B37E; }
+        .form-section input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
+        .checkbox-group {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+        }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .checkbox-group label { color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer;
+            text-transform: none; letter-spacing: 0; margin: 0; }
+        .prio-info { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+        .btn-emitir {
+            width: 100%; padding: 14px; background: #00B37E; color: #fff; border: none;
+            border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-emitir:hover { background: #00875A; }
+        .btn-voltar {
+            display: inline-block; margin-top: 24px; color: rgba(255,255,255,0.5);
+            text-decoration: none; font-size: 14px;
+        }
+        .btn-voltar:hover { color: #00B37E; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="logo">
+    <h1>Atende<span>Já</span></h1>
+</div>
+
+<div class="unidade-info" th:if="${unidade != null}">
+    <strong th:text="${unidade.nome}"></strong>
+    <span th:text="${unidade.tipo + ' — ' + (unidade.horario != null ? unidade.horario : '')}"></span>
+</div>
+
+<p class="subtitle">Selecione o serviço desejado</p>
+
+<div class="alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+<form id="senhaForm" th:action="@{/totem/emitir}" method="post">
+    <input type="hidden" name="unidadeId" th:value="${unidade.id}"/>
+    <input type="hidden" name="servicoId" id="servicoId" value=""/>
+
+    <div class="servicos">
+        <div class="servico-card" th:each="s : ${servicos}"
+             th:data-id="${s.id}" onclick="selecionarServico(this)">
+            <span class="icon">🩺</span>
+            <span class="nome" th:text="${s.nome}"></span>
+            <span class="prefixo" th:text="'Senha: ' + ${s.prefixo} + '___'"></span>
+        </div>
+    </div>
+
+    <div class="form-section" id="formSection">
+        <div class="checkbox-group">
+            <input type="checkbox" id="prioritaria" name="prioritaria" value="true"/>
+            <label for="prioritaria">Atendimento prioritário</label>
+        </div>
+        <p class="prio-info">Idosos, gestantes, lactantes, PCD ou pessoas com crianças de colo (Lei 10.048/2000)</p>
+
+        <label for="celular">Celular para notificação (opcional)</label>
+        <input type="text" id="celular" name="celular" placeholder="(82) 99999-0000"/>
+
+        <button type="submit" class="btn-emitir">🎫 Emitir Senha</button>
+    </div>
+</form>
+
+<a class="btn-voltar" th:href="@{/totem}">← Voltar para unidades</a>
+
+<script>
+    function selecionarServico(el) {
+        document.querySelectorAll('.servico-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('servicoId').value = el.dataset.id;
+        document.getElementById('formSection').classList.add('visible');
+    }
+</script>
+</body>
+</html>

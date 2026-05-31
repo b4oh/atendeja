@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6"
+      lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F9; }
+        .header {
+            background: #1A3C5E; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between; color: #fff;
+        }
+        .header h1 { font-size: 22px; }
+        .header h1 span { color: #00B37E; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-right .user-info { font-size: 14px; color: rgba(255,255,255,0.7); }
+        .header-right a {
+            color: #fff; text-decoration: none; font-size: 14px;
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px;
+        }
+        .header-right a:hover { background: rgba(255,255,255,0.25); }
+        .content { padding: 32px; max-width: 900px; margin: 0 auto; }
+        .welcome { font-size: 24px; font-weight: 700; color: #1A3C5E; margin-bottom: 8px; }
+        .subtitle { font-size: 14px; color: #7A8694; margin-bottom: 32px; }
+        .section-title {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: #7A8694; margin-bottom: 12px; margin-top: 28px;
+        }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .card {
+            background: #fff; border-radius: 12px; padding: 24px;
+            border: 1px solid #E5E7EB; text-align: center;
+            text-decoration: none; color: #1A3C5E;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card.disabled {
+            opacity: 0.5; pointer-events: none; cursor: not-allowed;
+        }
+        .card .icon { font-size: 36px; margin-bottom: 12px; }
+        .card .title { font-size: 16px; font-weight: 700; }
+        .card .desc { font-size: 13px; color: #7A8694; margin-top: 4px; }
+        .card .badge-soon {
+            display: inline-block; margin-top: 8px; padding: 2px 8px;
+            background: #FEF3C7; color: #92400E; border-radius: 4px;
+            font-size: 11px; font-weight: 600;
+        }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="header">
+    <h1>Atende<span>Já</span></h1>
+    <div class="header-right">
+        <span class="user-info" sec:authentication="name">usuário</span>
+        <form th:action="@{/logout}" method="post" style="display:inline;margin:0;">
+            <button type="submit" style="background:rgba(255,255,255,0.15);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:14px;cursor:pointer;">Sair</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <p class="welcome">Bem-vindo ao AtendeJá!</p>
+    <p class="subtitle">Selecione o que deseja fazer</p>
+
+    <!-- Público -->
+    <p class="section-title">🌐 Acesso público</p>
+    <div class="cards">
+        <a class="card" th:href="@{/senha/consultar}">
+            <div class="icon">🔍</div>
+            <div class="title">Consultar Fila</div>
+            <div class="desc">Posição na fila sem login</div>
+            <span class="badge-soon">Em breve</span>
+        </a>
+        <a class="card" th:href="@{/totem}">
+            <div class="icon">🎫</div>
+            <div class="title">Totem Digital</div>
+            <div class="desc">Emissão de senhas</div>
+            <span class="badge-soon">Em breve</span>
+        </a>
+        <a class="card" th:href="@{/transparencia}">
+            <div class="icon">📋</div>
+            <div class="title">Transparência</div>
+            <div class="desc">Agendamentos públicos</div>
+        </a>
+        <a class="card" th:href="@{/agendamento}">
+            <div class="icon">🧪</div>
+            <div class="title">Agendar Exame</div>
+            <div class="desc">Marcar exame online</div>
+        </a>
+    </div>
+
+    <!-- Atendente -->
+    <p class="section-title" sec:authorize="hasAnyRole('ADMIN','GESTOR','ATENDENTE')">🖥️ Atendimento</p>
+    <div class="cards" sec:authorize="hasAnyRole('ADMIN','GESTOR','ATENDENTE')">
+        <a class="card" th:href="@{/atendente/home}">
+            <div class="icon">🖥️</div>
+            <div class="title">Atendente</div>
+            <div class="desc">Chamar senhas e registrar</div>
+            <span class="badge-soon">Em breve</span>
+        </a>
+        <a class="card" th:href="@{/painel}">
+            <div class="icon">📺</div>
+            <div class="title">Painel de Chamada</div>
+            <div class="desc">Abrir painel para TV</div>
+        </a>
+    </div>
+
+    <!-- Gestor -->
+    <p class="section-title" sec:authorize="hasAnyRole('ADMIN','GESTOR')">📊 Gestão</p>
+    <div class="cards" sec:authorize="hasAnyRole('ADMIN','GESTOR')">
+        <a class="card" th:href="@{/gestor/home}">
+            <div class="icon">📊</div>
+            <div class="title">Relatórios</div>
+            <div class="desc">Dashboard gerencial</div>
+        </a>
+    </div>
+
+    <!-- Admin -->
+    <p class="section-title" sec:authorize="hasRole('ADMIN')">⚙️ Administração</p>
+    <div class="cards" sec:authorize="hasRole('ADMIN')">
+        <a class="card" th:href="@{/admin/usuarios}">
+            <div class="icon">👥</div>
+            <div class="title">Usuários</div>
+            <div class="desc">Gerenciar acessos</div>
+        </a>
+        <a class="card" th:href="@{/admin/unidades}">
+            <div class="icon">🏥</div>
+            <div class="title">Unidades</div>
+            <div class="desc">Gerenciar unidades</div>
+        </a>
+    </div>
+</div>
+</body>
+</html>

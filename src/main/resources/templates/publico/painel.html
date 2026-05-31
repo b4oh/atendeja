@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AtendeJá — Painel de Chamada</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #060D13; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .topbar {
+            background: #0A1520; border-bottom: 2px solid #00B37E;
+            padding: 16px 40px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar .logo { font-size: 26px; font-weight: 800; }
+        .topbar .logo span { color: #00B37E; }
+        .topbar .unidade { text-align: center; }
+        .topbar .unidade strong { display: block; font-size: 16px; }
+        .topbar .unidade small { color: rgba(255,255,255,0.5); font-size: 13px; }
+        .topbar .relogio { font-size: 28px; font-weight: 700; color: #00B37E; letter-spacing: 2px; }
+
+        .body-painel { flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 28px; padding: 32px; }
+
+        .chamada-atual {
+            background: linear-gradient(135deg, #0A2235, #071829);
+            border: 2px solid #00B37E; border-radius: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 48px; text-align: center; position: relative; overflow: hidden;
+        }
+        .chamada-atual::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center, rgba(0,179,126,0.08) 0%, transparent 70%);
+        }
+        .chamada-atual .label { font-size: 13px; letter-spacing: 3px; color: #00B37E; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+        .chamada-atual .numero { font-size: 120px; font-weight: 800; line-height: 1; letter-spacing: -4px; }
+        .chamada-atual .servico { margin-top: 12px; font-size: 22px; color: rgba(255,255,255,0.7); }
+        .chamada-atual .guiche-info {
+            margin-top: 20px; background: rgba(0,179,126,0.15); border: 1px solid rgba(0,179,126,0.3);
+            border-radius: 10px; padding: 10px 28px; font-size: 20px; font-weight: 700; color: #00B37E;
+        }
+        .chamada-atual .badge-prio {
+            margin-top: 12px; background: #FEF3C7; color: #92400E; padding: 4px 14px;
+            border-radius: 6px; font-size: 13px; font-weight: 700;
+        }
+
+        .historico { display: flex; flex-direction: column; gap: 12px; }
+        .historico h3 { color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .hist-item {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .hist-item .h-numero { font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.7); }
+        .hist-item .h-info { text-align: right; }
+        .hist-item .h-servico { font-size: 12px; color: rgba(255,255,255,0.4); }
+        .hist-item .h-guiche { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; }
+        .hist-item.prio { border-left: 3px solid #F59E0B; }
+
+        .sem-chamada { text-align: center; color: rgba(255,255,255,0.3); font-size: 18px; }
+        .sem-chamada .icon { font-size: 48px; margin-bottom: 12px; display: block; }
+
+        .rodape {
+            background: #0A1520; border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 14px 40px; display: flex; gap: 32px; align-items: center;
+        }
+        .stat { display: flex; flex-direction: column; align-items: center; }
+        .stat .val { font-size: 28px; font-weight: 800; }
+        .stat .val.verde { color: #00B37E; }
+        .stat .val.amarelo { color: #F5A623; }
+        .stat .lbl { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+        .divider { width: 1px; height: 40px; background: rgba(255,255,255,0.08); }
+        .status-sse { margin-left: auto; font-size: 12px; color: rgba(255,255,255,0.3); }
+        .status-sse .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+        .dot-verde { background: #00B37E; }
+        .dot-vermelho { background: #EF4444; }
+
+        /* Animação de chamada */
+        @keyframes pulsar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animando { animation: pulsar 0.6s ease-in-out 3; }
+    </style>
+    <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="topbar">
+    <div class="logo">Atende<span>Já</span></div>
+    <div class="unidade" th:if="${unidade != null}">
+        <strong>PAINEL DE CHAMADA</strong>
+        <small th:text="${unidade.nome}"></small>
+    </div>
+    <div class="relogio" id="relogio">--:--:--</div>
+</div>
+
+<div class="body-painel">
+    <!-- Senha sendo chamada -->
+    <div class="chamada-atual" id="chamadaAtual">
+        <div class="sem-chamada" id="semChamada">
+            <span class="icon">⏳</span>
+            Aguardando chamada de senha...
+        </div>
+        <div id="chamadaConteudo" style="display:none;">
+            <div class="label">🔊 CHAMANDO AGORA</div>
+            <div class="numero" id="senhaNumero"></div>
+            <div class="servico" id="senhaServico"></div>
+            <div class="guiche-info" id="senhaGuiche"></div>
+            <span class="badge-prio" id="senhaPrio" style="display:none;">⭐ PRIORITÁRIA</span>
+        </div>
+    </div>
+
+    <!-- Histórico -->
+    <div class="historico">
+        <h3>Últimas chamadas</h3>
+        <div id="historicoLista">
+            <div class="hist-item" th:each="s : ${ultimasChamadas}"
+                 th:classappend="${s.prioritaria ? ' prio' : ''}">
+                <div class="h-numero" th:text="${s.numero}"></div>
+                <div class="h-info">
+                    <div class="h-servico" th:text="${s.servico.nome}"></div>
+                    <div class="h-guiche">Guichê —</div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(ultimasChamadas)}" style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">
+                Nenhuma senha chamada ainda hoje.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rodape">
+    <div class="stat">
+        <div class="val amarelo" id="filaCount" th:text="${fila.size()}">0</div>
+        <div class="lbl">Na fila</div>
+    </div>
+    <div class="divider"></div>
+    <div class="stat">
+        <div class="val verde" id="chamadosCount" th:text="${ultimasChamadas.size()}">0</div>
+        <div class="lbl">Chamados hoje</div>
+    </div>
+    <div class="status-sse" id="statusSse">
+        <span class="dot dot-vermelho" id="sseDot"></span> Conectando...
+    </div>
+</div>
+
+<!-- Script SSE -->
+<script th:inline="javascript">
+    const unidadeId = /*[[${unidade.id}]]*/ 0;
+
+    // Relógio
+    function atualizarRelogio() {
+        const agora = new Date();
+        const h = String(agora.getHours()).padStart(2, '0');
+        const m = String(agora.getMinutes()).padStart(2, '0');
+        const s = String(agora.getSeconds()).padStart(2, '0');
+        document.getElementById('relogio').textContent = h + ':' + m + ':' + s;
+    }
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    // Conexão SSE
+    function conectarSSE() {
+        const source = new EventSource('/sse/painel/' + unidadeId);
+
+        source.addEventListener('chamada', function(event) {
+            const dados = JSON.parse(event.data);
+            exibirChamada(dados);
+        });
+
+        source.onopen = function() {
+            document.getElementById('sseDot').className = 'dot dot-verde';
+            document.getElementById('statusSse').innerHTML =
+                '<span class="dot dot-verde"></span> Tempo real · conectado';
+        };
+
+        source.onerror = function() {
+            document.getElementById('sseDot').className = 'dot dot-vermelho';
+            document.getElementById('statusSse').innerHTML =
+                '<span class="dot dot-vermelho"></span> Reconectando...';
+            source.close();
+            setTimeout(conectarSSE, 3000);
+        };
+    }
+
+    function exibirChamada(dados) {
+        // Esconde mensagem de aguardando
+        document.getElementById('semChamada').style.display = 'none';
+        const conteudo = document.getElementById('chamadaConteudo');
+        conteudo.style.display = 'block';
+
+        // Preenche dados
+        document.getElementById('senhaNumero').textContent = dados.numero;
+        document.getElementById('senhaServico').textContent = dados.servico;
+        document.getElementById('senhaGuiche').textContent = 'Guichê ' + dados.guiche;
+
+        // Prioridade
+        const prio = document.getElementById('senhaPrio');
+        prio.style.display = dados.prioritaria === 'true' ? 'inline-block' : 'none';
+
+        // Animação
+        const chamada = document.getElementById('chamadaAtual');
+        chamada.classList.remove('animando');
+        void chamada.offsetWidth;
+        chamada.classList.add('animando');
+
+        // Toca som
+        tocarSom();
+
+        // Adiciona ao histórico
+        adicionarHistorico(dados);
+    }
+
+    function adicionarHistorico(dados) {
+        const lista = document.getElementById('historicoLista');
+        const item = document.createElement('div');
+        item.className = 'hist-item' + (dados.prioritaria === 'true' ? ' prio' : '');
+        item.innerHTML =
+            '<div class="h-numero">' + dados.numero + '</div>' +
+            '<div class="h-info">' +
+            '<div class="h-servico">' + dados.servico + '</div>' +
+            '<div class="h-guiche">Guichê ' + dados.guiche + '</div>' +
+            '</div>';
+        lista.insertBefore(item, lista.firstChild);
+
+        // Mantém no máximo 5 itens
+        while (lista.children.length > 5) {
+            lista.removeChild(lista.lastChild);
+        }
+    }
+
+    function tocarSom() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            gain.gain.value = 0.3;
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+            setTimeout(() => {
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.frequency.value = 1100;
+                gain2.gain.value = 0.3;
+                osc2.start();
+                osc2.stop(ctx.currentTime + 0.4);
+            }, 350);
+        } catch(e) {}
+    }
+
+    // Inicia conexão SSE
+    conectarSSE();
+</script>
+</body>
+</html>
