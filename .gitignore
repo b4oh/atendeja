@@ -8,6 +8,7 @@ target/
 .env
 .env.*
 *.env
+!.env.example
 
 ### Logs and temporary files ###
 *.log

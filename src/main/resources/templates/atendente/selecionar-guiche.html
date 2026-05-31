@@ -42,6 +42,10 @@
         }
         .btn-abrir:hover { background: #00875A; }
         .btn-abrir:disabled { background: #D1D5DB; cursor: not-allowed; }
+        .btn-continuar { background: #1A3C5E; }
+        .btn-continuar:hover { background: #122e4a; }
+        .btn-liberar { background: #FEE2E2; color: #991B1B; margin-left: 6px; }
+        .btn-liberar:hover { background: #FECACA; }
     </style>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
@@ -63,6 +67,7 @@
     </div>
 
     <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
+    <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
 
     <div class="guiches">
         <div class="guiche-card" th:each="g : ${guiches}">
@@ -81,6 +86,17 @@
                   th:if="${g.status.name() == 'FECHADO' || g.status.name() == 'DISPONIVEL'}">
                 <button type="submit" class="btn-abrir">Abrir Guichê</button>
             </form>
+            <div th:if="${g.status.name() == 'EM_ATENDIMENTO'
+                         && g.operador != null
+                         && usuario != null
+                         && g.operador.id == usuario.id}">
+                <form th:action="@{/atendente/abrir/{id}(id=${g.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-abrir btn-continuar">Continuar</button>
+                </form>
+                <form th:action="@{/atendente/liberar/{id}(id=${g.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-abrir btn-liberar">Liberar</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

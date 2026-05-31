@@ -65,6 +65,7 @@ public class AtendenteController {
         List<Guiche> guiches = guicheService.listarPorUnidade(usuario.getUnidade().getId());
         model.addAttribute("guiches", guiches);
         model.addAttribute("unidade", usuario.getUnidade());
+        model.addAttribute("usuario", usuario);
         return "atendente/selecionar-guiche";
     }
 
@@ -77,6 +78,13 @@ public class AtendenteController {
 
         if (guiche == null || usuario == null) {
             redirect.addFlashAttribute("erro", "Guichê ou usuário não encontrado.");
+            return "redirect:/atendente/home";
+        }
+
+        if (guiche.getStatus() == StatusGuiche.EM_ATENDIMENTO
+                && guiche.getOperador() != null
+                && !guiche.getOperador().getId().equals(usuario.getId())) {
+            redirect.addFlashAttribute("erro", "Este guichê já está em uso por outro atendente.");
             return "redirect:/atendente/home";
         }
 
@@ -146,6 +154,36 @@ public class AtendenteController {
             redirect.addFlashAttribute("erro", e.getMessage());
         }
         return "redirect:/atendente/painel/" + guicheId;
+    }
+
+    @PostMapping("/liberar/{guicheId}")
+    public String liberar(@PathVariable Long guicheId,
+                          Authentication auth,
+                          RedirectAttributes redirect) {
+        Usuario usuario = usuarioRepository.findByEmail(auth.getName()).orElse(null);
+        Guiche guiche = guicheRepository.findById(guicheId).orElse(null);
+
+        if (guiche == null || usuario == null) {
+            redirect.addFlashAttribute("erro", "Guichê ou usuário não encontrado.");
+            return "redirect:/atendente/home";
+        }
+
+        boolean mesmoOperador = guiche.getOperador() != null
+                && guiche.getOperador().getId().equals(usuario.getId());
+        boolean adminOuGestor = usuario.getPerfil().name().equals("ADMIN")
+                || usuario.getPerfil().name().equals("GESTOR");
+
+        if (!mesmoOperador && !adminOuGestor) {
+            redirect.addFlashAttribute("erro", "Você só pode liberar um guichê aberto por você.");
+            return "redirect:/atendente/home";
+        }
+
+        guiche.setStatus(StatusGuiche.FECHADO);
+        guiche.setOperador(null);
+        guicheRepository.save(guiche);
+
+        redirect.addFlashAttribute("sucesso", "Guichê liberado com sucesso.");
+        return "redirect:/atendente/home";
     }
 
     // Registrar atendimento

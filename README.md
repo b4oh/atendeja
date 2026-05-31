@@ -59,6 +59,12 @@ Com o banco criado e as variáveis configuradas:
 mvn spring-boot:run
 ```
 
+Para carregar as variáveis do arquivo `.env` local e iniciar a aplicação:
+
+```powershell
+.\tools\run-local.ps1
+```
+
 A aplicação fica disponível em:
 
 ```text
