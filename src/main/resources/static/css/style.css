@@ -38,7 +38,6 @@
 body {
     font-family: "Segoe UI", Arial, sans-serif;
     color: var(--cinza-800);
-    background: var(--fundo);
 }
 
 a {
@@ -128,12 +127,16 @@ textarea {
     letter-spacing: 0;
 }
 
-.subtitle,
-.section-title,
-.hint,
-.desc,
-.label,
-.lbl {
+.content .subtitle,
+.content .section-title,
+.content .hint,
+.content .desc,
+.content .label,
+.content .lbl,
+.header .info,
+.card .desc,
+.form-card .label,
+.table-container .label {
     color: var(--cinza-500);
 }
 
