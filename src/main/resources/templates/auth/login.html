@@ -10,11 +10,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #0F1923;
+            background:
+                radial-gradient(circle at top left, rgba(0,179,126,0.22), transparent 30%),
+                linear-gradient(135deg, #0F2D45 0%, #123A5A 52%, #0B1F31 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 24px;
         }
         .login-card {
             background: #fff;
@@ -22,6 +25,7 @@
             padding: 48px 40px;
             width: 100%;
             max-width: 420px;
+            border: 1px solid rgba(255,255,255,0.18);
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         .logo {
@@ -60,6 +64,11 @@
         .form-group {
             margin-bottom: 20px;
         }
+        .input-wrap { position: relative; }
+        .input-wrap i {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: #7A8694; font-size: 16px;
+        }
         .form-group label {
             display: block;
             font-size: 13px;
@@ -71,7 +80,7 @@
         }
         .form-group input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 16px 12px 42px;
             border: 1.5px solid #D1D5DB;
             border-radius: 8px;
             font-size: 15px;
@@ -85,7 +94,7 @@
         .btn-login {
             width: 100%;
             padding: 14px;
-            background: #1A3C5E;
+            background: #00B37E;
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -94,8 +103,12 @@
             cursor: pointer;
             transition: background 0.2s;
             margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .btn-login:hover { background: #122e4a; }
+        .btn-login:hover { background: #00875A; }
         .links {
             text-align: center;
             margin-top: 24px;
@@ -111,7 +124,12 @@
             color: #9CA3AF;
             font-size: 12px;
         }
+        @media (max-width: 520px) {
+            .login-card { padding: 36px 24px; }
+            .logo h1 { font-size: 32px; }
+        }
     </style>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -134,24 +152,31 @@
     <form th:action="@{/login}" method="post">
         <div class="form-group">
             <label for="username">E-mail</label>
-            <input type="email"
-                   id="username"
-                   name="username"
-                   placeholder="seu@email.com"
-                   required
-                   autofocus/>
+            <div class="input-wrap">
+                <i class="bi bi-envelope"></i>
+                <input type="email"
+                       id="username"
+                       name="username"
+                       placeholder="seu@email.com"
+                       required
+                       autofocus/>
+            </div>
         </div>
 
         <div class="form-group">
             <label for="password">Senha</label>
-            <input type="password"
-                   id="password"
-                   name="password"
-                   placeholder="••••••••"
-                   required/>
+            <div class="input-wrap">
+                <i class="bi bi-lock"></i>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       placeholder="••••••••"
+                       required/>
+            </div>
         </div>
 
         <button type="submit" class="btn-login">
+            <i class="bi bi-box-arrow-in-right"></i>
             Entrar no sistema
         </button>
     </form>

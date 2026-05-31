@@ -29,8 +29,9 @@
         .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
         .metric-card {
             background: #fff; border-radius: 12px; padding: 20px; text-align: center;
-            border: 1px solid #E5E7EB;
+            border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(15,45,69,0.08);
         }
+        .metric-card .metric-icon { color: #00B37E; font-size: 22px; margin-bottom: 8px; }
         .metric-card .val { font-size: 36px; font-weight: 800; color: #1A3C5E; }
         .metric-card .val.verde { color: #00B37E; }
         .metric-card .val.amarelo { color: #F5A623; }
@@ -81,7 +82,19 @@
         .badge-naocomp { background: #FEE2E2; color: #991B1B; }
         .badge-redir { background: #FEF3C7; color: #92400E; }
         .empty-msg { text-align: center; color: #9CA3AF; padding: 32px; font-size: 14px; }
+        @media (max-width: 980px) {
+            .metrics { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .content { padding: 22px 18px; }
+            .metrics { grid-template-columns: 1fr; }
+            .page-title { align-items: flex-start; flex-direction: column; gap: 6px; }
+            .table-card { overflow-x: auto; }
+        }
     </style>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -108,22 +121,27 @@
     <!-- Cards de métricas -->
     <div class="metrics">
         <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-ticket-perforated"></i></div>
             <div class="val" th:text="${senhasEmitidas}">0</div>
             <div class="lbl">Senhas emitidas</div>
         </div>
         <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-check2-circle"></i></div>
             <div class="val verde" th:text="${atendimentos}">0</div>
             <div class="lbl">Atendimentos</div>
         </div>
         <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-hourglass-split"></i></div>
             <div class="val amarelo" th:text="${naFila}">0</div>
             <div class="lbl">Na fila agora</div>
         </div>
         <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-person-x"></i></div>
             <div class="val vermelho" th:text="${naoComparecimentos}">0</div>
             <div class="lbl">Não compareceu</div>
         </div>
         <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-clock-history"></i></div>
             <div class="val" th:text="${#numbers.formatDecimal(tempoMedio, 0, 1)} + ' min'">0 min</div>
             <div class="lbl">Tempo médio espera</div>
         </div>
@@ -180,7 +198,7 @@
     <!-- Últimos atendimentos -->
     <div class="table-card">
         <h3>Últimos atendimentos</h3>
-        <table>
+        <table class="table table-hover align-middle mb-0">
             <thead>
             <tr>
                 <th>Senha</th>

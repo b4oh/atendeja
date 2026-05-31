@@ -567,4 +567,24 @@ a:focus-visible {
         overflow-x: auto;
         white-space: nowrap;
     }
+
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    .btn-cancel,
+    .btn-danger,
+    .btn-edit,
+    .btn-status {
+        max-width: 100%;
+    }
+
+    .card,
+    .form-card,
+    .login-card,
+    .table-container,
+    .table-card,
+    .chart-card,
+    .metric-card {
+        overflow-wrap: anywhere;
+    }
 }

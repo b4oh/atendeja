@@ -41,6 +41,7 @@
         .btn {
             width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700;
             cursor: pointer; border: none; text-align: center; margin-top: 4px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
         .btn-chamar { background: #1A3C5E; color: #fff; }
         .btn-chamar:hover { background: #122e4a; }
@@ -90,7 +91,14 @@
         .btn-finalizar:hover { background: #00875A; }
         .form-sem-senha { text-align: center; color: #9CA3AF; padding: 40px; font-size: 16px; }
         .form-sem-senha .icon { font-size: 40px; margin-bottom: 12px; display: block; }
+        .btn-finalizar { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        @media (max-width: 900px) {
+            .content { grid-template-columns: 1fr; }
+            .sidebar { border-right: none; border-bottom: 1px solid #E5E7EB; }
+            .form-row { grid-template-columns: 1fr; }
+        }
     </style>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -133,7 +141,7 @@
 
         <div>
             <form th:action="@{/atendente/chamar/{id}(id=${guiche.id})}" method="post">
-                <button type="submit" class="btn btn-chamar">▶ Chamar Próxima Senha</button>
+                <button type="submit" class="btn btn-chamar"><i class="bi bi-megaphone"></i> Chamar Próxima Senha</button>
             </form>
         </div>
 
@@ -155,7 +163,7 @@
         </div>
 
         <form th:action="@{/atendente/fechar/{id}(id=${guiche.id})}" method="post">
-            <button type="submit" class="btn btn-fechar">✕ Fechar Guichê</button>
+            <button type="submit" class="btn btn-fechar"><i class="bi bi-x-circle"></i> Fechar Guichê</button>
         </form>
     </div>
 
@@ -211,7 +219,7 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn-finalizar">✓ Finalizar e Chamar Próximo</button>
+                        <button type="submit" class="btn-finalizar"><i class="bi bi-check-circle"></i> Finalizar e Chamar Próximo</button>
                     </div>
                 </form>
             </div>
