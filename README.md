@@ -31,38 +31,28 @@ Também é possível criar o banco `atendeja` pelo pgAdmin e executar o conteúd
 
 ## Variáveis de ambiente
 
-O projeto usa variáveis de ambiente para evitar credenciais fixas no código.
+O projeto usa variáveis de ambiente para evitar credenciais fixas no código. Para desenvolvimento local, crie um arquivo `.env` na raiz do projeto com base no `.env.example`.
 
-Configuração mínima para rodar localmente no PowerShell:
+Exemplo:
 
-```powershell
-$env:SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/atendeja"
-$env:SPRING_DATASOURCE_USERNAME="postgres"
-$env:SPRING_DATASOURCE_PASSWORD="postgres123"
-```
+```env
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/atendeja
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=postgres123
 
-Configuração para SMS via AWS SNS:
-
-```powershell
-$env:AWS_ACCESS_KEY_ID="sua_access_key"
-$env:AWS_SECRET_ACCESS_KEY="sua_secret_key"
-$env:AWS_REGION="us-east-1"
+AWS_ACCESS_KEY_ID=sua_access_key
+AWS_SECRET_ACCESS_KEY=sua_secret_key
+AWS_REGION=us-east-1
 ```
 
 Nunca publique chaves da AWS, senhas de banco ou arquivos `.env` no GitHub.
 
 ## Como rodar
 
-Com o banco criado e as variáveis configuradas:
+Com o banco criado e o `.env` preenchido:
 
 ```powershell
 mvn spring-boot:run
-```
-
-Para carregar as variáveis do arquivo `.env` local e iniciar a aplicação:
-
-```powershell
-.\tools\run-local.ps1
 ```
 
 A aplicação fica disponível em:
