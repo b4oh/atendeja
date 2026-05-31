@@ -22,11 +22,11 @@
         .page-title h2 { font-size: 24px; color: #1A3C5E; }
         .subtitle { color: #7A8694; font-size: 14px; margin-bottom: 24px; }
         .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
-            text-decoration: none; cursor: pointer; border: none; }
+            text-decoration: none; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: #00B37E; color: #fff; }
         .btn-primary:hover { background: #00875A; }
-        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; }
-        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .btn-ativar { background: #D1FAE5; color: #065F46; }
         .btn-desativar { background: #FEE2E2; color: #991B1B; }
         .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
@@ -43,15 +43,20 @@
         .badge-prefixo { background: #E0E7FF; color: #3730A3; font-size: 16px; font-weight: 800; }
         .badge-disponivel { background: #D1FAE5; color: #065F46; }
         .badge-indisponivel { background: #FEE2E2; color: #991B1B; }
-        .acoes { display: flex; gap: 8px; align-items: center; }
+        .acoes { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .admin-table-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+        .admin-table-card table { box-shadow: none; border-radius: 0; margin-bottom: 0; }
+        .admin-empty { text-align: center; color: #9CA3AF; padding: 32px !important; }
     </style>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
 <body>
 <div class="header">
     <h1>Atende<span>Já</span></h1>
     <div class="header-links">
-        <a th:href="@{/admin/unidades}">← Unidades</a>
+        <a th:href="@{/admin/unidades}"><i class="bi bi-arrow-left"></i> Unidades</a>
         <a th:href="@{/dashboard}">Dashboard</a>
         <form th:action="@{/logout}" method="post">
             <button type="submit">Sair</button>
@@ -63,14 +68,18 @@
     <div class="page-title">
         <h2>Serviços</h2>
         <a class="btn btn-primary"
-           th:href="@{/admin/unidades/{id}/servicos/novo(id=${unidade.id})}">+ Novo Serviço</a>
+           th:href="@{/admin/unidades/{id}/servicos/novo(id=${unidade.id})}">
+            <i class="bi bi-plus-circle"></i>
+            Novo Serviço
+        </a>
     </div>
     <p class="subtitle" th:text="${unidade.nome + ' — ' + unidade.tipo}"></p>
 
     <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
     <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
 
-    <table>
+    <div class="admin-table-card table-responsive">
+    <table class="table table-hover align-middle mb-0">
         <thead>
         <tr>
             <th>Prefixo</th>
@@ -82,34 +91,39 @@
         </thead>
         <tbody>
         <tr th:each="s : ${servicos}">
-            <td><span class="badge badge-prefixo" th:text="${s.prefixo}"></span></td>
+            <td><span class="badge badge-prefixo rounded-pill" th:text="${s.prefixo}"></span></td>
             <td th:text="${s.nome}"></td>
             <td th:text="${s.capacidadeDiaria + ' senhas'}"></td>
             <td>
-                <span class="badge badge-disponivel" th:if="${s.disponivel}">Disponível</span>
-                <span class="badge badge-indisponivel" th:unless="${s.disponivel}">Indisponível</span>
+                <span class="badge badge-disponivel rounded-pill" th:if="${s.disponivel}">Disponível</span>
+                <span class="badge badge-indisponivel rounded-pill" th:unless="${s.disponivel}">Indisponível</span>
             </td>
             <td>
                 <div class="acoes">
                     <a class="btn-edit"
-                       th:href="@{/admin/unidades/{uid}/servicos/editar/{sid}(uid=${unidade.id},sid=${s.id})}">Editar</a>
+                       th:href="@{/admin/unidades/{uid}/servicos/editar/{sid}(uid=${unidade.id},sid=${s.id})}">
+                        <i class="bi bi-pencil-square"></i>
+                        Editar
+                    </a>
                     <form th:action="@{/admin/unidades/{uid}/servicos/status/{sid}(uid=${unidade.id},sid=${s.id})}"
                           method="post" style="margin:0">
                         <button type="submit"
-                                th:class="${s.disponivel ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}"
-                                th:text="${s.disponivel ? 'Desativar' : 'Ativar'}">
+                                th:class="${s.disponivel ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}">
+                            <i th:class="${s.disponivel ? 'bi bi-x-circle' : 'bi bi-check-circle'}"></i>
+                            <span th:text="${s.disponivel ? 'Desativar' : 'Ativar'}"></span>
                         </button>
                     </form>
                 </div>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(servicos)}">
-            <td colspan="5" style="text-align:center;color:#9CA3AF;padding:32px;">
+            <td colspan="5" class="admin-empty">
                 Nenhum serviço cadastrado nesta unidade.
             </td>
         </tr>
         </tbody>
     </table>
+    </div>
 </div>
 </body>
 </html>

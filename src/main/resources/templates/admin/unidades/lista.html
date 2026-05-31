@@ -26,9 +26,9 @@
             text-decoration: none; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: #00B37E; color: #fff; }
         .btn-primary:hover { background: #00875A; }
-        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; }
+        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-edit:hover { background: #1A5276; }
-        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .btn-ativar { background: #D1FAE5; color: #065F46; }
         .btn-desativar { background: #FEE2E2; color: #991B1B; }
         .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
@@ -48,8 +48,13 @@
         .badge-clinica { background: #F3F4F6; color: #374151; }
         .badge-ativa { background: #D1FAE5; color: #065F46; }
         .badge-inativa { background: #FEE2E2; color: #991B1B; }
-        .acoes { display: flex; gap: 8px; align-items: center; }
+        .acoes { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .admin-table-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+        .admin-table-card table { box-shadow: none; border-radius: 0; margin-bottom: 0; }
+        .admin-empty { text-align: center; color: #9CA3AF; padding: 32px !important; }
     </style>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -66,13 +71,17 @@
 <div class="content">
     <div class="page-title">
         <h2>Gerenciar Unidades de Saúde</h2>
-        <a class="btn btn-primary" th:href="@{/admin/unidades/nova}">+ Nova Unidade</a>
+        <a class="btn btn-primary" th:href="@{/admin/unidades/nova}">
+            <i class="bi bi-plus-circle"></i>
+            Nova Unidade
+        </a>
     </div>
 
     <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
     <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
 
-    <table>
+    <div class="admin-table-card table-responsive">
+    <table class="table table-hover align-middle mb-0">
         <thead>
         <tr>
             <th>Nome</th>
@@ -89,38 +98,46 @@
             <td th:text="${u.nome}"></td>
             <td th:text="${u.cnes}"></td>
             <td>
-                <span class="badge badge-ubs" th:if="${u.tipo.name() == 'UBS'}">UBS</span>
-                <span class="badge badge-upa" th:if="${u.tipo.name() == 'UPA'}">UPA</span>
-                <span class="badge badge-hospital" th:if="${u.tipo.name() == 'HOSPITAL'}">Hospital</span>
-                <span class="badge badge-clinica" th:if="${u.tipo.name() == 'CLINICA'}">Clínica</span>
+                <span class="badge badge-ubs rounded-pill" th:if="${u.tipo.name() == 'UBS'}">UBS</span>
+                <span class="badge badge-upa rounded-pill" th:if="${u.tipo.name() == 'UPA'}">UPA</span>
+                <span class="badge badge-hospital rounded-pill" th:if="${u.tipo.name() == 'HOSPITAL'}">Hospital</span>
+                <span class="badge badge-clinica rounded-pill" th:if="${u.tipo.name() == 'CLINICA'}">Clínica</span>
             </td>
             <td th:text="${u.endereco}"></td>
             <td th:text="${u.horario != null ? u.horario : '—'}"></td>
             <td>
-                <span class="badge badge-ativa" th:if="${u.ativa}">Ativa</span>
-                <span class="badge badge-inativa" th:unless="${u.ativa}">Inativa</span>
+                <span class="badge badge-ativa rounded-pill" th:if="${u.ativa}">Ativa</span>
+                <span class="badge badge-inativa rounded-pill" th:unless="${u.ativa}">Inativa</span>
             </td>
             <td>
                 <div class="acoes">
                     <a class="btn-edit" style="background:#00B37E;"
-                       th:href="@{/admin/unidades/{id}/servicos(id=${u.id})}">Serviços</a>
-                    <a class="btn-edit" th:href="@{/admin/unidades/editar/{id}(id=${u.id})}">Editar</a>
+                       th:href="@{/admin/unidades/{id}/servicos(id=${u.id})}">
+                        <i class="bi bi-list-check"></i>
+                        Serviços
+                    </a>
+                    <a class="btn-edit" th:href="@{/admin/unidades/editar/{id}(id=${u.id})}">
+                        <i class="bi bi-pencil-square"></i>
+                        Editar
+                    </a>
                     <form th:action="@{/admin/unidades/status/{id}(id=${u.id})}" method="post" style="margin:0">
                         <button type="submit"
-                                th:class="${u.ativa ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}"
-                                th:text="${u.ativa ? 'Desativar' : 'Ativar'}">
+                                th:class="${u.ativa ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}">
+                            <i th:class="${u.ativa ? 'bi bi-x-circle' : 'bi bi-check-circle'}"></i>
+                            <span th:text="${u.ativa ? 'Desativar' : 'Ativar'}"></span>
                         </button>
                     </form>
                 </div>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(unidades)}">
-            <td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px;">
+            <td colspan="7" class="admin-empty">
                 Nenhuma unidade cadastrada.
             </td>
         </tr>
         </tbody>
     </table>
+    </div>
 </div>
 </body>
 </html>

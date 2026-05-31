@@ -22,9 +22,9 @@
             text-decoration: none; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: #00B37E; color: #fff; }
         .btn-primary:hover { background: #00875A; }
-        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; }
+        .btn-edit { background: #2D6A9F; color: #fff; padding: 6px 14px; font-size: 13px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-edit:hover { background: #1A5276; }
-        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-status { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .btn-ativar { background: #D1FAE5; color: #065F46; }
         .btn-desativar { background: #FEE2E2; color: #991B1B; }
         .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
@@ -44,8 +44,13 @@
         .badge-cidadao { background: #F3F4F6; color: #374151; }
         .badge-ativo { background: #D1FAE5; color: #065F46; }
         .badge-inativo { background: #FEE2E2; color: #991B1B; }
-        .acoes { display: flex; gap: 8px; align-items: center; }
+        .acoes { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .admin-table-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+        .admin-table-card table { box-shadow: none; border-radius: 0; margin-bottom: 0; }
+        .admin-empty { text-align: center; color: #9CA3AF; padding: 32px !important; }
     </style>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}"/>
     <link rel="stylesheet" class="app-global-style" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -62,14 +67,18 @@
 <div class="content">
     <div class="page-title">
         <h2>Gerenciar Usuários</h2>
-        <a class="btn btn-primary" th:href="@{/admin/usuarios/novo}">+ Novo Usuário</a>
+        <a class="btn btn-primary" th:href="@{/admin/usuarios/novo}">
+            <i class="bi bi-plus-circle"></i>
+            Novo Usuário
+        </a>
     </div>
 
     <!-- Alertas -->
     <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
     <div class="alert alert-error" th:if="${erro}" th:text="${erro}"></div>
 
-    <table>
+    <div class="admin-table-card table-responsive">
+    <table class="table table-hover align-middle mb-0">
         <thead>
         <tr>
             <th>Nome</th>
@@ -87,35 +96,40 @@
             <td th:text="${u.email}"></td>
             <td th:text="${u.cpf}"></td>
             <td>
-                <span class="badge badge-admin" th:if="${u.perfil.name() == 'ADMIN'}">Admin</span>
-                <span class="badge badge-gestor" th:if="${u.perfil.name() == 'GESTOR'}">Gestor</span>
-                <span class="badge badge-atendente" th:if="${u.perfil.name() == 'ATENDENTE'}">Atendente</span>
-                <span class="badge badge-cidadao" th:if="${u.perfil.name() == 'CIDADAO'}">Cidadão</span>
+                <span class="badge badge-admin rounded-pill" th:if="${u.perfil.name() == 'ADMIN'}">Admin</span>
+                <span class="badge badge-gestor rounded-pill" th:if="${u.perfil.name() == 'GESTOR'}">Gestor</span>
+                <span class="badge badge-atendente rounded-pill" th:if="${u.perfil.name() == 'ATENDENTE'}">Atendente</span>
+                <span class="badge badge-cidadao rounded-pill" th:if="${u.perfil.name() == 'CIDADAO'}">Cidadão</span>
             </td>
             <td th:text="${u.unidade != null ? u.unidade.nome : '—'}"></td>
             <td>
-                <span class="badge badge-ativo" th:if="${u.ativo}">Ativo</span>
-                <span class="badge badge-inativo" th:unless="${u.ativo}">Inativo</span>
+                <span class="badge badge-ativo rounded-pill" th:if="${u.ativo}">Ativo</span>
+                <span class="badge badge-inativo rounded-pill" th:unless="${u.ativo}">Inativo</span>
             </td>
             <td>
                 <div class="acoes">
-                    <a class="btn-edit" th:href="@{/admin/usuarios/editar/{id}(id=${u.id})}">Editar</a>
+                    <a class="btn-edit" th:href="@{/admin/usuarios/editar/{id}(id=${u.id})}">
+                        <i class="bi bi-pencil-square"></i>
+                        Editar
+                    </a>
                     <form th:action="@{/admin/usuarios/status/{id}(id=${u.id})}" method="post" style="margin:0">
                         <button type="submit"
-                                th:class="${u.ativo ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}"
-                                th:text="${u.ativo ? 'Desativar' : 'Ativar'}">
+                                th:class="${u.ativo ? 'btn-status btn-desativar' : 'btn-status btn-ativar'}">
+                            <i th:class="${u.ativo ? 'bi bi-x-circle' : 'bi bi-check-circle'}"></i>
+                            <span th:text="${u.ativo ? 'Desativar' : 'Ativar'}"></span>
                         </button>
                     </form>
                 </div>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(usuarios)}">
-            <td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px;">
+            <td colspan="7" class="admin-empty">
                 Nenhum usuário cadastrado.
             </td>
         </tr>
         </tbody>
     </table>
+    </div>
 </div>
 </body>
 </html>
