@@ -236,20 +236,8 @@ Se a AWS bloquear por sandbox, região, permissão, assinatura do serviço ou cr
 
 ## Segurança
 
-- O arquivo `.env` está protegido pelo `.gitignore`.
-- O repositório deve conter apenas `.env.example`, sem credenciais reais.
 - Senhas de usuários são armazenadas com BCrypt.
 - O controle de acesso é feito por Spring Security.
 - Rotas administrativas exigem perfil `ADMIN`.
 - Rotas de gestor exigem `ADMIN` ou `GESTOR`.
 - Rotas de atendente exigem `ADMIN`, `GESTOR` ou `ATENDENTE`.
-
-## Observações para GitHub público
-
-- Não publique credenciais da AWS.
-- Não publique senhas reais de banco.
-- Não publique o arquivo `.env`.
-- O script SQL oficial está em `database/atendeja_banco_v2.sql`.
-- O projeto está preparado para execução local com PostgreSQL.
-- Deploy em cloud pode ser feito futuramente configurando as mesmas variáveis de ambiente na plataforma de hospedagem.
-
